@@ -23,6 +23,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  http: ^0.12.2
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -49,6 +50,12 @@ flutter:
    - images/teclado.png
    - images/panel de control.png
    - images/biblioteca musical.png
+   - images/PianistBot-1.png
+   - images/pianoPlay.jpg
+   - images/playButton.jpg
+   - images/circle-cropped.png
+   - images/circle-cropped-1.png
+   - images/circle-cropped-2.png
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

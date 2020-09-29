@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'piano_page.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class MenuPage extends StatefulWidget {
   @override
@@ -12,7 +14,7 @@ class MenuState extends State<MenuPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Pianist Bot')),
+        appBar: AppBar(title: Text('Pianist Bot')),
       backgroundColor: Colors.black,
       body: scaffoldBody(),
     );
@@ -21,14 +23,14 @@ class MenuState extends State<MenuPage> {
   Widget scaffoldBody() {
     return Column(
       children: <Widget>[
-        menuOption('images/teclado.png', 'Teclado',4.0,0),
-        menuOption('images/biblioteca musical.png', 'Biblioteca Musical',4.0,0),
-        menuOption('images/panel de control.png', 'Panel de Control',4.0,4.0)
+        menuOption('images/teclado.png', 'Teclado',4.0,0,navigateToPianoPage),
+        menuOption('images/biblioteca musical.png', 'Biblioteca Musical',4.0,0,navigateToPianoPage),
+        menuOption('images/panel de control.png', 'Panel de Control',4.0,4.0,navigateToPianoPage)
       ],
     );
   }
 
-  Widget menuOption (String imageDir, String text, double topAndSidePadding,double bottomPadding){
+  Widget menuOption (String imageDir, String text, double topAndSidePadding,double bottomPadding,Function function){
     return 
         Expanded(
             
@@ -52,7 +54,7 @@ class MenuState extends State<MenuPage> {
                                 width: 100.0,
                                 height: 100.0,
                                 child: FlatButton(
-                                    onPressed: null,
+                                    onPressed: function,
                                     child: Image.asset(imageDir)),
                               ),
                               (Text(
@@ -67,5 +69,19 @@ class MenuState extends State<MenuPage> {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return PianoPage();
     }));
+  }
+
+  void post(){
+    var client = http.Client();
+    try{
+      var url = 'http://192.168.1.5:300/switchLed';
+      client.post(url,body: json.encode({'status':true}),headers: {'Content-type':'application/json'}).then((response){
+        print('status: ${true.toString()}');
+      });
+    }
+    finally{
+      client.close();
+    }
+
   }
 }
