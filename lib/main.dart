@@ -64,17 +64,25 @@ class HomePageState extends State<HomePage> {
   }
 void returnScaffoldBody(){
     setState(() {
-      scaffoldBody = Center(child: Column(
+      scaffoldBody = Container(
+
+        decoration: BoxDecoration(
+          image: DecorationImage(image: AssetImage('images/Fondo Piano blur.jpeg'),
+          fit: BoxFit.cover
+          )
+        ),
+        child:Center(child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-              width: 200,
-              height: 200,
-              child: Image.asset('images/PianistBot-1.png')),
+          // Container(
+          //     width: 200,
+          //     height: 200,
+          //     child: Image.asset('images/PianistBot-1.png')),
           Text('Pianist Bot',style: TextStyle(
-              color: Colors.black, fontSize: 16.0,fontWeight: FontWeight.bold),)
+              color: Colors.white, fontSize: 36.0,fontWeight: FontWeight.bold),)
         ],
-      ));
+      ))
+      );
     });
 }
 
@@ -97,7 +105,7 @@ void returnScaffoldBody(){
   }
 
   startTime() async {
-    var duration = new Duration(seconds: 3);
+    var duration = new Duration(seconds: 7);
     return new Timer(duration,menuScaffoldBody);
   }
 
