@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'screens/piano_page.dart';
-import 'screens/menu_page.dart';
 import 'dart:async';
 import 'screens/reproduction_page.dart';
-
+import './widgets/menu_option.dart';
+import './screens/control_panel_page.dart';
 void main() {
   runApp(PianoApp());
 }
@@ -16,10 +16,26 @@ class PianoApp extends StatelessWidget {
       title: 'Pianist Bot',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        //primarySwatch: Colors.black,
-        textTheme: TextTheme(
-            headline6: TextStyle(color: Colors.white),
-            subtitle2: TextStyle(color: Colors.white)),
+        primarySwatch: Colors.blue,
+        accentColor: Colors.white,
+        textTheme: ThemeData.light().textTheme.copyWith(
+              headline6: TextStyle(
+                  color: Colors.white,
+                  //fontFamily: 'OpenSans',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 22),
+              headline3: TextStyle(
+                  color: Colors.white,
+                  //fontFamily: 'OpenSans',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16),
+               headline1: TextStyle(
+                  color: Colors.white,
+                  //fontFamily: 'OpenSans',
+                  fontWeight: FontWeight.normal,
+                  fontSize: 12),
+              button: TextStyle(color:Colors.white),
+                  ),
         hintColor: Colors.white,
         canvasColor: Colors.white,
       ),
@@ -78,19 +94,13 @@ void returnScaffoldBody(){
           //     width: 200,
           //     height: 200,
           //     child: Image.asset('images/PianistBot-1.png')),
-          Text('Pianist Bot',style: TextStyle(
+          Text('PIANIST BOT',style: TextStyle(
               color: Colors.white, fontSize: 36.0,fontWeight: FontWeight.bold),)
         ],
       ))
       );
     });
 }
-
- void navigateToMenuPage() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return MenuPage();
-    }));
-  }
 
  void navigateToPianoPage() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -104,44 +114,15 @@ void returnScaffoldBody(){
     }));
   }
 
-  startTime() async {
-    var duration = new Duration(seconds: 7);
-    return new Timer(duration,menuScaffoldBody);
+    void navigateToControlPanelPage() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return ControlPanelPage();
+    }));
   }
 
-  Widget menuOption (String imageDir, String text, double topAndSidePadding,double bottomPadding,Function function){
-    return
-      Expanded(
-
-          child: Center(
-              child: Padding(
-                  padding: EdgeInsets.only(top:topAndSidePadding,bottom: bottomPadding,left: topAndSidePadding,right: topAndSidePadding),
-                  child: Container(
-
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(color: Colors.black, width: 1),
-                          borderRadius: BorderRadius.circular(5)),
-                      width: double.infinity,
-                      height: double.infinity,
-                      child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Container(
-                              width: 100.0,
-                              height: 100.0,
-                              child: FlatButton(
-                                  onPressed: function,
-                                  child: Image.asset(imageDir)),
-                            ),
-                            (Text(
-                              text,
-                              style: TextStyle(
-                                  color: Colors.black, fontSize: 16.0),
-                            ))
-                          ])))));
+  startTime() async {
+    var duration = new Duration(seconds: 1);
+    return new Timer(duration,menuScaffoldBody);
   }
 
   void menuScaffoldBody() {
@@ -150,9 +131,9 @@ void returnScaffoldBody(){
       backgroundColor=Colors.black;
       scaffoldBody= Column(
         children: <Widget>[
-          menuOption('images/teclado.png', 'Teclado',4.0,0,navigateToPianoPage),
-          menuOption('images/biblioteca musical.png', 'Biblioteca Musical',4.0,0,navigateToReproductionPage),
-          menuOption('images/panel de control.png', 'Panel de Control',4.0,4.0,navigateToPianoPage)
+        MenuOption(4.0,0, 'Teclado',navigateToPianoPage,'images/piano.jpeg'),   
+        MenuOption(4.0,0, 'Biblioteca Musical',navigateToReproductionPage,'images/playButton.jpeg'),
+        MenuOption(4.0,0, 'Panel de Control',navigateToControlPanelPage,'images/controlPanel.jpeg'),
         ],
       );
     });
