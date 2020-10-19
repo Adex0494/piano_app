@@ -4,8 +4,8 @@ import '../widgets/day_bar.dart';
 class ControlPanelPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title:Text('Panel de Control')),
-      backgroundColor: Colors.black,
+    return Scaffold(appBar: AppBar(title:Text('Estadística',style: TextStyle(color:Colors.white))),
+      //backgroundColor: Colors.black,
       body: Column(
       children:<Widget>
       [

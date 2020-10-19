@@ -19,8 +19,8 @@ class ReproductionPageState extends State<ReproductionPage>{
   @override
   Widget build(BuildContext context){
     return Scaffold(
-      appBar: AppBar(title: Text('Lista de reproducción')),
-      backgroundColor: Colors.black,
+      appBar: AppBar(title: Text('Lista de reproducción',style: TextStyle(color: Colors.white),)),
+      //backgroundColor: Colors.black,
       body: scaffoldBody(),
     );
   }

@@ -3,7 +3,7 @@ import 'screens/piano_page.dart';
 import 'dart:async';
 import 'screens/reproduction_page.dart';
 import './widgets/menu_option.dart';
-import './screens/control_panel_page.dart';
+import 'screens/statistics.dart';
 void main() {
   runApp(PianoApp());
 }
@@ -16,26 +16,29 @@ class PianoApp extends StatelessWidget {
       title: 'Pianist Bot',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-        accentColor: Colors.white,
+        //primarySwatch: Colors.grey,
+        //accentColor: Colors.white,
         textTheme: ThemeData.light().textTheme.copyWith(
               headline6: TextStyle(
-                  color: Colors.white,
+                  color: Colors.black,
                   //fontFamily: 'OpenSans',
                   fontWeight: FontWeight.bold,
                   fontSize: 22),
               headline3: TextStyle(
-                  color: Colors.white,
+                  color: Colors.black,
                   //fontFamily: 'OpenSans',
                   fontWeight: FontWeight.bold,
                   fontSize: 16),
                headline1: TextStyle(
-                  color: Colors.white,
+                  color: Colors.black,
                   //fontFamily: 'OpenSans',
                   fontWeight: FontWeight.normal,
                   fontSize: 12),
               button: TextStyle(color:Colors.white),
                   ),
+        cardColor: Colors.white,
+        appBarTheme: AppBarTheme(color: Colors.black,),
+        scaffoldBackgroundColor: Colors.white,
         hintColor: Colors.white,
         canvasColor: Colors.white,
       ),
@@ -53,12 +56,12 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage> {
   Widget scaffoldBody;
-  Color backgroundColor;
+  //Color backgroundColor;
   AppBar appBar;
   @override
   initState() {
     super.initState();
-    backgroundColor= Colors.white;
+    //backgroundColor= Colors.white;
     returnScaffoldBody();
     startTime();
   }
@@ -69,7 +72,7 @@ class HomePageState extends State<HomePage> {
     // TextStyle subtitleStyle = Theme.of(context).textTheme.subtitle;
     return Scaffold(
       appBar: appBar,
-      backgroundColor: backgroundColor,
+      //backgroundColor: backgroundColor,
       body: scaffoldBody,
       // floatingActionButton: FloatingActionButton(
       //   onPressed: () {
@@ -127,13 +130,13 @@ void returnScaffoldBody(){
 
   void menuScaffoldBody() {
     setState(() {
-      appBar = AppBar(title: Text('Pianist Bot'),leading: null,);
-      backgroundColor=Colors.black;
+      appBar = AppBar(title: Text('Pianist Bot', style: TextStyle(color:Colors.white)),leading: null,);
+      //backgroundColor=Colors.white;
       scaffoldBody= Column(
         children: <Widget>[
-        MenuOption(4.0,0, 'Teclado',navigateToPianoPage,'images/piano.jpeg'),   
-        MenuOption(4.0,0, 'Biblioteca Musical',navigateToReproductionPage,'images/playButton.jpeg'),
-        MenuOption(4.0,0, 'Panel de Control',navigateToControlPanelPage,'images/controlPanel.jpeg'),
+        MenuOption(0,4,0, 'Teclado',navigateToPianoPage,'images/piano.png'),   
+        MenuOption(0,4,0, 'Biblioteca Musical',navigateToReproductionPage,'images/playButton.png'),
+        MenuOption(0,4,2, 'Estadística',navigateToControlPanelPage,'images/controlPanel.png'),
         ],
       );
     });
