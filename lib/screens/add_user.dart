@@ -16,13 +16,13 @@ class _AddUserState extends State<AddUser> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(appBar: AppBar(title:Text('Registrar usuario')),
+      backgroundColor: Color.fromRGBO(59, 77, 101, 1),
       body: scaffoldBody(),
     );
   }
 
   Widget scaffoldBody() {
-    //TextStyle titleStyle = Theme.of(context).textTheme.title;
-    TextStyle subtitleStyle = Theme.of(context).textTheme.headline3;
+    TextStyle subtitleStyle = TextStyle(color: Colors.white, fontSize: 14);
     return Container(
       alignment: Alignment.center,
       child: Form(
@@ -34,6 +34,21 @@ class _AddUserState extends State<AddUser> {
               child: Column(
                 children: <Widget>[
                   Padding(
+                      padding: const EdgeInsets.all(45.0),
+                      child: Column(
+                        children: [
+                          Container(
+                              width: 100,
+                              height: 100,
+                              child: Image.asset('images/piano.png')),
+                          Text(
+                            'PIANIST BOT',
+                            style: TextStyle(color: Colors.grey, fontSize: 16),
+                          ),
+                        ],
+                      ),
+                    ),
+                  Padding(
                       padding: EdgeInsets.all(3.0),
                       child: TextFormField(
                         style: subtitleStyle,
@@ -43,12 +58,18 @@ class _AddUserState extends State<AddUser> {
                             return 'Introduzca el Nombre de Usuario';
                           }
                         },
-                        decoration: InputDecoration(
-                            labelText: 'Nombre de Usuario',
-                            labelStyle: subtitleStyle,
-                            enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.redAccent),
-                                borderRadius: BorderRadius.circular(5.0))),
+                        cursorColor: Colors.white,
+                      decoration: InputDecoration(
+                          icon: Icon(
+                            Icons.email,
+                            color: Colors.white,
+                          ),
+                          labelText: 'Nombre de Usuario',
+                          labelStyle: subtitleStyle,
+                          enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white)),
+                          focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white))),
                         onChanged: (value) {
                           //When Name Text has changed...
                         },
@@ -73,12 +94,23 @@ class _AddUserState extends State<AddUser> {
                             }
                           }
                         },
+                        cursorColor: Colors.white,
                         decoration: InputDecoration(
                             labelText: 'Contraseña',
                             labelStyle: subtitleStyle,
-                            enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.redAccent),
-                                borderRadius: BorderRadius.circular(5.0))),
+                            icon: Icon(
+                              Icons.lock,
+                              color: Colors.white,
+                            ),
+                            enabledBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(color: Colors.white)),
+                            focusedBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(color: Colors.white))
+                            // enabledBorder: OutlineInputBorder(
+                            //   borderSide: BorderSide(color: Colors.redAccent),
+                            //   borderRadius: BorderRadius.circular(5.0),
+                            // )
+                            ),
                         onChanged: (value) {
                           //When Name Text has changed...
                         },
@@ -103,40 +135,55 @@ class _AddUserState extends State<AddUser> {
                             }
                           }
                         },
+                        cursorColor: Colors.white,
                         decoration: InputDecoration(
                             labelText: 'Repita Contraseña',
                             labelStyle: subtitleStyle,
-                            enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.redAccent),
-                                borderRadius: BorderRadius.circular(5.0))),
+                            icon: Icon(
+                              Icons.lock,
+                              color: Colors.white,
+                            ),
+                            enabledBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(color: Colors.white)),
+                            focusedBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(color: Colors.white))
+                            // enabledBorder: OutlineInputBorder(
+                            //   borderSide: BorderSide(color: Colors.redAccent),
+                            //   borderRadius: BorderRadius.circular(5.0),
+                            // )
+                            ),
                         onChanged: (value) {
                           //When Name Text has changed...
                         },
                       )),
                   Padding(
                     padding: EdgeInsets.all(3.0),
-                    child: RaisedButton(
-                      elevation: 3.0,
-                      color: Theme.of(context).primaryColor,
-                      child: Text(
-                        'Registrar usuario',
-                        style: TextStyle(color: Colors.white),
-                        //textScaleFactor: 1.5,
-                      ),
-                      onPressed: () {
-                        //When the Registrar button is pressed...
-                        //if (_formkey.currentState.validate())
-                          //_validateThenSave();
-                        // setState(() {
-                        //   debugPrint('Registrar button Pressed');
-                        //   Trainer trainer = Trainer(nameController.text,0);
-                        //   debugPrint('trainer created');
-                        //   _saveTrainer(trainer);
-                        // });
-                      },
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5.0)),
-                    ),
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 30, bottom: 30),
+                      child: RaisedButton(
+                              elevation: 3.0,
+                              color: Color.fromRGBO(16, 183, 202, 1),
+                              child: Container(
+                                width: double.infinity,
+                                height: 30,
+                                child: Center(
+                                  child: Text(
+                                    'Registrar',
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 16),
+                                    textAlign: TextAlign.center,
+                                    //textScaleFactor: 1.5,
+                                  ),
+                                ),
+                              ),
+                              onPressed: () {
+                                //When the Iniciar Sesión button is pressed...
+                                //_validateThenNavigate();
+                              },
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5.0)),
+                            ),
+                    )
                   )
                 ],
               ),

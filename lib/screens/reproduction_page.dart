@@ -31,10 +31,12 @@ class ReproductionPageState extends State<ReproductionPage>{
           itemCount: songs.length,
           itemBuilder: (BuildContext context, int postition) {
             return Card(
-              color: Theme.of(context).primaryColorLight,
-              elevation: 2.0,
+              color: Colors.white,
+              elevation: 5.0,
               child: ListTile(
                 leading: CircleAvatar(
+                  backgroundColor: Colors.black,
+                  foregroundColor: Colors.white,
                   //child: Icon(Icons.person),
                   //backgroundImage:ImageProvider('images/faceIcon.png'),
                   child: Icon(Icons.play_arrow),

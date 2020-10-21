@@ -123,7 +123,7 @@ class HomePageState extends State<HomePage> {
   // }
 
   startTime() async {
-    var duration = new Duration(seconds: 1);
+    var duration = new Duration(seconds: 3);
     return new Timer(duration, login);
   }
 
