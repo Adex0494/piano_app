@@ -7,8 +7,12 @@ class DayBar extends StatelessWidget {
   DayBar(this.timePorcentage,this.day);
   @override
   Widget build(BuildContext context) {
-    return Column( children:<Widget>[
-              Container(
+    return Column( 
+            mainAxisAlignment: MainAxisAlignment.center,
+            children:<Widget>[
+             Transform.rotate( 
+               angle: -3.1416,
+               child:Container(
                 //color: Colors.white,
                 width: 30,
                 height: 150,
@@ -29,7 +33,7 @@ class DayBar extends StatelessWidget {
                   ))
 
                 ],),
-              ),
+              )),
               Text(day,style: Theme.of(context).textTheme.headline1,)
             
             ]);

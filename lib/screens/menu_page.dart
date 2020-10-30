@@ -42,7 +42,7 @@ class _MenuPageState extends State<MenuPage> {
 
     void navigateToControlPanelPage() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return ControlPanelPage();
+      return StatisticsPage();
     }));
   }
 }

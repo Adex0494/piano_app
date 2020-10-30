@@ -282,7 +282,7 @@ class HomePageState extends State<HomePage> {
 
   void navigateToControlPanelPage() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return ControlPanelPage();
+      return StatisticsPage();
     }));
   }
 
