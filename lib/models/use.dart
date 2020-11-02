@@ -4,7 +4,7 @@ class Use{
   int _id;
   int _userId;
   int _minutes;
-  DateTime _date;
+  String _date;
 
   Use(this._userId,this._minutes,this._date);
   Use.withId(this._id,this._userId,this._minutes,this._date);
@@ -12,7 +12,7 @@ class Use{
   int get id => _id;
   int get userId => _userId;
   int get minutes => _minutes;
-  DateTime get date => _date;
+  String get date => _date;
 
   set userId(int newUserId){
     this._userId = newUserId;
@@ -22,7 +22,7 @@ class Use{
     this._minutes = newMinutes;
   }
 
-  set date(DateTime newDate){
+  set date(String newDate){
     this._date = newDate;
   }
 
