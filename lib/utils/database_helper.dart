@@ -44,7 +44,7 @@ class DatabaseHelper {
 
    Future<Database> initializeDatabase() async {
     Directory directory = await getApplicationDocumentsDirectory();
-    String path = directory.path + 'fitTrainer.db';
+    String path = directory.path + 'pianoApp.db';
     debugPrint('Opening database');
     var pianoDatabase =
         await openDatabase(path, version: 1, onCreate: _createDb);
@@ -58,22 +58,24 @@ class DatabaseHelper {
         '$colPassword TEXT NOT NULL)');
     await db.execute(
         'CREATE TABLE $useTable($colId INTEGER PRIMARY KEY AUTOINCREMENT,'
-        '$colUserId INTEGER,$colMinutes INTEGER NOT NULL,$colDate TEXT NOT NULL'
+        '$colUserId INTEGER,$colMinutes INTEGER NOT NULL,$colDate TEXT NOT NULL,'
         'FOREIGN KEY ($colUserId) REFERENCES $userTable ($colId))');
     debugPrint('Database Created');
   }
 
   //-------------Insert User----------------
-    Future<int> insertUser(User user) async {
+  Future<int> insertUser(User user) async {
+    Database db = await this.database;
     int result =
-        await _database.insert(userTable, user.toMap());
+        await db.insert(userTable, user.toMap());
     return result;
   }
 
 //--------------Insert Use
-      Future<int> insertUse(Use use) async {
+   Future<int> insertUse(Use use) async {
+    Database db = await this.database;
     int result =
-        await _database.insert(useTable, use.toMap());
+        await db.insert(useTable, use.toMap());
     return result;
   }
 
@@ -127,10 +129,20 @@ class DatabaseHelper {
     return objectList;
   }
 
+  //----------------------Get last use object
     Future<Use> getLastUseFromUser(int userId) async {
     Map<String, dynamic> map = await getLastUseFromUserMap(userId);
     Use object = Use.toUse(map);
     return object;
+  }
+
+
+// ----------------------Update use
+  Future<int> updateUse(Use use) async {
+    Database db = await this.database;
+    int result = await db.update(useTable, use.toMap(),
+        where: '$colId = ?', whereArgs: [use.id]);
+    return result;
   }
 
 

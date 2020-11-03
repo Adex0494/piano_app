@@ -62,7 +62,7 @@ class HomePage extends StatefulWidget {
   }
 }
 
-class HomePageState extends State<HomePage> with WidgetsBindingObserver{
+class HomePageState extends State<HomePage> with WidgetsBindingObserver {
   Widget scaffoldBody;
   //Color backgroundColor;
   AppBar appBar;
@@ -70,10 +70,8 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver{
   TextEditingController passwordControler = TextEditingController();
   DatabaseHelper databaseHelper = DatabaseHelper();
 
-
-
   @override
-  initState(){
+  initState() {
     insertDummyUser();
     WidgetsBinding.instance.addObserver(this);
     super.initState();
@@ -81,31 +79,25 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver{
     startTime();
   }
 
-    insertDummyUser()async{
-      User user = User('Ari','1');
-      await databaseHelper.insertUser(user);
-  }
-
-  void saveTime()async{
-    if (PianoApp.stopwatch.isRunning) PianoApp.stopwatch.stop();
-    int timeInMinutes = (PianoApp.stopwatch.elapsedMilliseconds/60000).round();
-
-    Use use = await databaseHelper.getLastUseFromUser(1);
-    DateTime date = DateTime.tryParse(use.date);
-  }
-
   @override
-  void didChangeAppLifeCycleState(AppLifecycleState state){
-    switch(state){
-      case AppLifecycleState.paused: if (PianoApp.stopwatch.isRunning) PianoApp.stopwatch.stop();
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    debugPrint(state.toString());
+    switch (state) {
+      case (AppLifecycleState.paused):
+        if (PianoApp.stopwatch.isRunning) PianoApp.stopwatch.stop();
+        debugPrint(PianoApp.stopwatch.elapsedMilliseconds.toString());
         break;
-      case AppLifecycleState.inactive: if (PianoApp.stopwatch.isRunning) PianoApp.stopwatch.stop();
+      case AppLifecycleState.inactive:
+        if (PianoApp.stopwatch.isRunning) PianoApp.stopwatch.stop();
+        debugPrint(PianoApp.stopwatch.elapsedMilliseconds.toString());
         break;
-      case AppLifecycleState.detached: if(PianoApp.stopwatch.elapsedMilliseconds>30000) saveTime();
+      case AppLifecycleState.detached:
+        debugPrint(PianoApp.stopwatch.elapsedMilliseconds.toString());
+        if (PianoApp.stopwatch.elapsedMilliseconds > 30000) saveTime();
         break;
-      default: break;
+      default:
+        break;
     }
-
   }
 
   @override
@@ -113,6 +105,34 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver{
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
+
+  insertDummyUser() async {
+    User user = User('Ari', '1');
+    await databaseHelper.insertUser(user);
+  }
+
+  void saveTime() async {
+    if (PianoApp.stopwatch.isRunning) PianoApp.stopwatch.stop();
+    int timeInMinutes =
+        (PianoApp.stopwatch.elapsedMilliseconds / 60000).round();
+
+    Use lastUseSaved = await databaseHelper.getLastUseFromUser(1);
+    DateTime lastUseSavedDate = DateTime.tryParse(lastUseSaved.date);
+    if (lastUseSaved.minutes != null &&
+        (lastUseSavedDate.day == DateTime.now().day &&
+            lastUseSavedDate.month == DateTime.now().month &&
+            lastUseSavedDate.year == DateTime.now().year)) {
+      lastUseSaved.minutes += timeInMinutes;
+      lastUseSaved.date = DateTime.now().toString();
+      await databaseHelper.updateUse(lastUseSaved);
+
+    } else {
+      Use firstUseToday = Use(1, timeInMinutes, DateTime.now().toString());
+      await databaseHelper.insertUse(firstUseToday);
+    }
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
