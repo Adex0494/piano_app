@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../main.dart';
+
 class PianoPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState(){
@@ -7,89 +10,105 @@ class PianoPage extends StatefulWidget {
 } 
 
 class PianoPageState extends State<PianoPage> {
+
+void moveToLastScreen() {
+    PianoApp.stopwatch.stop();
+     debugPrint(PianoApp.stopwatch.elapsedMilliseconds.toString());
+    Navigator.pop(context);
+  }
+  
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
-            backgroundColor: Colors.grey,
-            body: Padding(
-                padding: EdgeInsets.only(top: 20.0),
-                child: Row(children: <Widget>[
-                  Expanded(
-                      child: Column(
-                    //crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      PianoButtonWithSuperKey(
-                          onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      PianoButton(onKeyPress: () {}),
-                      PianoButtonWithSuperKey(
-                          onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      PianoButtonWithSuperKey(
-                          onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      PianoButton(onKeyPress: () {}),
-                      PianoButtonWithSuperKey(
-                          onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      PianoButtonWithSuperKey(
-                          onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      PianoButtonWithSuperKey(
-                          onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      PianoButton(onKeyPress: () {}),
-                      PianoButtonWithSuperKey(
-                          onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      PianoButtonWithSuperKey(
-                          onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      PianoButton(onKeyPress: () {}),
-                      PianoButtonWithSuperKey(
-                          onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      PianoButtonWithSuperKey(
-                          onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      PianoButtonWithSuperKey(
-                          onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      PianoButton(onKeyPress: () {}),
-                      PianoButtonWithSuperKey(
-                          onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      PianoButtonWithSuperKey(
-                          onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                    ],
-                  )),
-                  Expanded(
-                      child: Column(
-                    //crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      PianoButton(onKeyPress: () {}),
-                      PianoButton(onKeyPress: () {}),
-                      PianoButtonWithSuperKey(
-                          onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      PianoButtonWithSuperKey(
-                          onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      PianoButtonWithSuperKey(
-                          onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      PianoButton(onKeyPress: () {}),
-                      PianoButtonWithSuperKey(
-                          onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      PianoButtonWithSuperKey(
-                          onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      PianoButton(onKeyPress: () {}),
-                      PianoButtonWithSuperKey(
-                          onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      PianoButtonWithSuperKey(
-                          onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      PianoButtonWithSuperKey(
-                          onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      PianoButton(onKeyPress: () {}),
-                      PianoButtonWithSuperKey(
-                          onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      PianoButtonWithSuperKey(
-                          onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      PianoButton(onKeyPress: () {}),
-                      PianoButtonWithSuperKey(
-                          onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      PianoButtonWithSuperKey(
-                          onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                    ],
-                  ))
-                ]))));
+
+    if(!PianoApp.stopwatch.isRunning)
+      {
+        debugPrint(PianoApp.stopwatch.elapsedMilliseconds.toString());
+        PianoApp.stopwatch.start();}
+
+    return  WillPopScope(
+      onWillPop: () {
+       moveToLastScreen();
+      },
+          child: Scaffold(
+              backgroundColor: Colors.grey,
+              body: Padding(
+                  padding: EdgeInsets.only(top: 20.0),
+                  child: Row(children: <Widget>[
+                    Expanded(
+                        child: Column(
+                      //crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        PianoButtonWithSuperKey(
+                            onMainKeyPress: () {}, onSuperKeyPress: () {}),
+                        PianoButton(onKeyPress: () {}),
+                        PianoButtonWithSuperKey(
+                            onMainKeyPress: () {}, onSuperKeyPress: () {}),
+                        PianoButtonWithSuperKey(
+                            onMainKeyPress: () {}, onSuperKeyPress: () {}),
+                        PianoButton(onKeyPress: () {}),
+                        PianoButtonWithSuperKey(
+                            onMainKeyPress: () {}, onSuperKeyPress: () {}),
+                        PianoButtonWithSuperKey(
+                            onMainKeyPress: () {}, onSuperKeyPress: () {}),
+                        PianoButtonWithSuperKey(
+                            onMainKeyPress: () {}, onSuperKeyPress: () {}),
+                        PianoButton(onKeyPress: () {}),
+                        PianoButtonWithSuperKey(
+                            onMainKeyPress: () {}, onSuperKeyPress: () {}),
+                        PianoButtonWithSuperKey(
+                            onMainKeyPress: () {}, onSuperKeyPress: () {}),
+                        PianoButton(onKeyPress: () {}),
+                        PianoButtonWithSuperKey(
+                            onMainKeyPress: () {}, onSuperKeyPress: () {}),
+                        PianoButtonWithSuperKey(
+                            onMainKeyPress: () {}, onSuperKeyPress: () {}),
+                        PianoButtonWithSuperKey(
+                            onMainKeyPress: () {}, onSuperKeyPress: () {}),
+                        PianoButton(onKeyPress: () {}),
+                        PianoButtonWithSuperKey(
+                            onMainKeyPress: () {}, onSuperKeyPress: () {}),
+                        PianoButtonWithSuperKey(
+                            onMainKeyPress: () {}, onSuperKeyPress: () {}),
+                      ],
+                    )),
+                    Expanded(
+                        child: Column(
+                      //crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        PianoButton(onKeyPress: () {}),
+                        PianoButton(onKeyPress: () {}),
+                        PianoButtonWithSuperKey(
+                            onMainKeyPress: () {}, onSuperKeyPress: () {}),
+                        PianoButtonWithSuperKey(
+                            onMainKeyPress: () {}, onSuperKeyPress: () {}),
+                        PianoButtonWithSuperKey(
+                            onMainKeyPress: () {}, onSuperKeyPress: () {}),
+                        PianoButton(onKeyPress: () {}),
+                        PianoButtonWithSuperKey(
+                            onMainKeyPress: () {}, onSuperKeyPress: () {}),
+                        PianoButtonWithSuperKey(
+                            onMainKeyPress: () {}, onSuperKeyPress: () {}),
+                        PianoButton(onKeyPress: () {}),
+                        PianoButtonWithSuperKey(
+                            onMainKeyPress: () {}, onSuperKeyPress: () {}),
+                        PianoButtonWithSuperKey(
+                            onMainKeyPress: () {}, onSuperKeyPress: () {}),
+                        PianoButtonWithSuperKey(
+                            onMainKeyPress: () {}, onSuperKeyPress: () {}),
+                        PianoButton(onKeyPress: () {}),
+                        PianoButtonWithSuperKey(
+                            onMainKeyPress: () {}, onSuperKeyPress: () {}),
+                        PianoButtonWithSuperKey(
+                            onMainKeyPress: () {}, onSuperKeyPress: () {}),
+                        PianoButton(onKeyPress: () {}),
+                        PianoButtonWithSuperKey(
+                            onMainKeyPress: () {}, onSuperKeyPress: () {}),
+                        PianoButtonWithSuperKey(
+                            onMainKeyPress: () {}, onSuperKeyPress: () {}),
+                      ],
+                    ))
+                  ]))),
+    );
   }
 }
 

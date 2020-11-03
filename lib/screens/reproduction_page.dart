@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'play_page.dart';
+import '../main.dart';
 
 class ReproductionPage extends StatefulWidget{
   @override
@@ -11,17 +13,33 @@ class ReproductionPage extends StatefulWidget{
 class ReproductionPageState extends State<ReproductionPage>{
   List<String> songs = List<String>();
 
+  void moveToLastScreen() {
+    PianoApp.stopwatch.stop();
+     debugPrint(PianoApp.stopwatch.elapsedMilliseconds.toString());
+    Navigator.pop(context);
+  }
+
   initState() {
     super.initState();
     songs = ['Lose yourself','Ya me enteré','Creo en ti','La Gasolina','Punto y aparte','Pa que se lo goce','Ni fu ni fa','Noviembre sin ti','Aquí estoy',
     'Sinfonía de Bethoven','The four seasons','Volverte a ver','Te amo'];
   }
+
   @override
   Widget build(BuildContext context){
-    return Scaffold(
-      appBar: AppBar(title: Text('Lista de reproducción',style: TextStyle(color: Colors.white),)),
-      //backgroundColor: Colors.black,
-      body: scaffoldBody(),
+    if(!PianoApp.stopwatch.isRunning)
+      {
+        debugPrint(PianoApp.stopwatch.elapsedMilliseconds.toString());
+        PianoApp.stopwatch.start();}
+    return WillPopScope(
+       onWillPop: () {
+       moveToLastScreen();
+      },
+          child: Scaffold(
+        appBar: AppBar(title: Text('Lista de reproducción',style: TextStyle(color: Colors.white),)),
+        //backgroundColor: Colors.black,
+        body: scaffoldBody(),
+      ),
     );
   }
 

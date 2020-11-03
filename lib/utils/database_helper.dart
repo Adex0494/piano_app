@@ -106,6 +106,15 @@ class DatabaseHelper {
   }
 
 
+  //----------------Get last use from a user map 
+    Future<Map<String, dynamic>> getLastUseFromUserMap(int userId) async {
+    Database db = await this.database;
+    List<Map<String, dynamic>> result =
+        await db.rawQuery('SELECT TOP 1 * FROM $useTable WHERE $colUserId = userId ORDER BY $colId DESC');
+    return result[0];
+  }
+
+
 //-----------------Get all uses from a user object List
 
   Future<List<Use>> getUseFromUserList(int userId) async {
@@ -116,6 +125,12 @@ class DatabaseHelper {
       objectList.add(Use.toUse(mapList[i]));
     }
     return objectList;
+  }
+
+    Future<Use> getLastUseFromUser(int userId) async {
+    Map<String, dynamic> map = await getLastUseFromUserMap(userId);
+    Use object = Use.toUse(map);
+    return object;
   }
 
 

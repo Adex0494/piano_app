@@ -6,12 +6,16 @@ import './screens/menu_page.dart';
 import './screens/piano_page.dart';
 import './screens/reproduction_page.dart';
 import './screens/statistics.dart';
+import './utils/database_helper.dart';
+import './models/use.dart';
+import './models/user.dart';
 
 void main() {
   runApp(PianoApp());
 }
 
 class PianoApp extends StatelessWidget {
+  static Stopwatch stopwatch = Stopwatch();
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -58,19 +62,56 @@ class HomePage extends StatefulWidget {
   }
 }
 
-class HomePageState extends State<HomePage> {
+class HomePageState extends State<HomePage> with WidgetsBindingObserver{
   Widget scaffoldBody;
   //Color backgroundColor;
   AppBar appBar;
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordControler = TextEditingController();
+  DatabaseHelper databaseHelper = DatabaseHelper();
+
+
 
   @override
-  initState() {
+  initState(){
+    insertDummyUser();
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
-    //backgroundColor= Colors.white;
     returnScaffoldBody();
     startTime();
+  }
+
+    insertDummyUser()async{
+      User user = User('Ari','1');
+      await databaseHelper.insertUser(user);
+  }
+
+  void saveTime()async{
+    if (PianoApp.stopwatch.isRunning) PianoApp.stopwatch.stop();
+    int timeInMinutes = (PianoApp.stopwatch.elapsedMilliseconds/60000).round();
+
+    Use use = await databaseHelper.getLastUseFromUser(1);
+    DateTime date = DateTime.tryParse(use.date);
+  }
+
+  @override
+  void didChangeAppLifeCycleState(AppLifecycleState state){
+    switch(state){
+      case AppLifecycleState.paused: if (PianoApp.stopwatch.isRunning) PianoApp.stopwatch.stop();
+        break;
+      case AppLifecycleState.inactive: if (PianoApp.stopwatch.isRunning) PianoApp.stopwatch.stop();
+        break;
+      case AppLifecycleState.detached: if(PianoApp.stopwatch.elapsedMilliseconds>30000) saveTime();
+        break;
+      default: break;
+    }
+
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   @override
