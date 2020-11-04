@@ -5,7 +5,6 @@ import './screens/add_user.dart';
 import './screens/menu_page.dart';
 import './screens/piano_page.dart';
 import './screens/reproduction_page.dart';
-import './screens/statistics.dart';
 import './utils/database_helper.dart';
 import './models/use.dart';
 import './models/user.dart';
@@ -69,6 +68,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordControler = TextEditingController();
   DatabaseHelper databaseHelper = DatabaseHelper();
+  bool stopWatchWasRunning = false;
 
   @override
   initState() {
@@ -83,17 +83,17 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     debugPrint(state.toString());
     switch (state) {
-      case (AppLifecycleState.paused):
-        if (PianoApp.stopwatch.isRunning) PianoApp.stopwatch.stop();
-        debugPrint(PianoApp.stopwatch.elapsedMilliseconds.toString());
-        break;
       case AppLifecycleState.inactive:
-        if (PianoApp.stopwatch.isRunning) PianoApp.stopwatch.stop();
-        debugPrint(PianoApp.stopwatch.elapsedMilliseconds.toString());
-        break;
-      case AppLifecycleState.detached:
+        if (PianoApp.stopwatch.isRunning) {PianoApp.stopwatch.stop(); stopWatchWasRunning=true;}
         debugPrint(PianoApp.stopwatch.elapsedMilliseconds.toString());
         if (PianoApp.stopwatch.elapsedMilliseconds > 30000) saveTime();
+        break;
+      case AppLifecycleState.resumed:
+        if(stopWatchWasRunning){
+          PianoApp.stopwatch.start();
+          stopWatchWasRunning=false;
+        }
+        //if (PianoApp.stopwatch.elapsedMilliseconds > 30000) saveTime();
         break;
       default:
         break;
@@ -110,29 +110,35 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     User user = User('Ari', '1');
     await databaseHelper.insertUser(user);
   }
+   
 
   void saveTime() async {
+    debugPrint('saving');
     if (PianoApp.stopwatch.isRunning) PianoApp.stopwatch.stop();
     int timeInMinutes =
         (PianoApp.stopwatch.elapsedMilliseconds / 60000).round();
 
     Use lastUseSaved = await databaseHelper.getLastUseFromUser(1);
-    DateTime lastUseSavedDate = DateTime.tryParse(lastUseSaved.date);
-    if (lastUseSaved.minutes != null &&
-        (lastUseSavedDate.day == DateTime.now().day &&
-            lastUseSavedDate.month == DateTime.now().month &&
-            lastUseSavedDate.year == DateTime.now().year)) {
-      lastUseSaved.minutes += timeInMinutes;
-      lastUseSaved.date = DateTime.now().toString();
-      await databaseHelper.updateUse(lastUseSaved);
-
+    DateTime lastUseSavedDate;
+    if (lastUseSaved != null) {
+      lastUseSavedDate = DateTime.tryParse(lastUseSaved.date);
+      if (lastUseSaved != null &&
+          lastUseSavedDate.day == DateTime.now().day &&
+          lastUseSavedDate.month == DateTime.now().month &&
+          lastUseSavedDate.year == DateTime.now().year) {
+        lastUseSaved.minutes += timeInMinutes;
+        lastUseSaved.date = DateTime.now().toString();
+        await databaseHelper.updateUse(lastUseSaved);
+        debugPrint('updated time saved');
+        PianoApp.stopwatch.reset();
+      }
     } else {
       Use firstUseToday = Use(1, timeInMinutes, DateTime.now().toString());
       await databaseHelper.insertUse(firstUseToday);
+      debugPrint('saved new');
+      PianoApp.stopwatch.reset();
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -325,7 +331,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   void navigateToMenuPage() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return MenuPage();
+      return MenuPage(saveTime);
     }));
   }
 
@@ -341,11 +347,11 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     }));
   }
 
-  void navigateToControlPanelPage() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return StatisticsPage();
-    }));
-  }
+  // void navigateToStatisticsPage() {
+  //   Navigator.push(context, MaterialPageRoute(builder: (context) {
+  //     return StatisticsPage();
+  //   }));
+  // }
 
   void navigateToAddUser() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {

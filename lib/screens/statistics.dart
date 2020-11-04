@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../widgets/day_bar.dart';
+import '../utils/database_helper.dart';
+import '../models/use.dart';
+import '../main.dart';
 
 enum Range {
   FirstDay,
@@ -9,15 +12,39 @@ enum Range {
 }
 
 class StatisticsPage extends StatefulWidget {
+  final Function saveTime;
+
+  StatisticsPage(this.saveTime);
   @override
-  _StatisticsPageState createState() => _StatisticsPageState();
+  _StatisticsPageState createState() => _StatisticsPageState(this.saveTime);
 }
 
 class _StatisticsPageState extends State<StatisticsPage> {
+  final Function saveTime;
+
+  _StatisticsPageState(this.saveTime);
+  //Function saveTime = widget.saveTime;
   String mode = 'Por periodo';
   String period = 'Semanal';
   DateTime _firstSelectedDate;
   DateTime _lastSelectedDate;
+  DatabaseHelper databaseHelper = DatabaseHelper();
+  List<Use> useList;
+  
+
+
+  void getUse()async{
+    //PianoApp.stopwatch.stop();
+    if(PianoApp.stopwatch.elapsedMilliseconds > 30000)
+      await saveTime();
+    debugPrint('entering');
+    useList = await databaseHelper.getUseFromUserList(1);
+    for(int i =0; i<useList.length; i++){
+      debugPrint(useList[i].date +' ' + useList[i].minutes.toString());
+      
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +69,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                 onChanged: (String value) {
                   setState(() {
                     mode = value;
+                    getUse();
                   });
                 }),
           ),

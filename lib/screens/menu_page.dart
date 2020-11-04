@@ -6,11 +6,15 @@ import 'reproduction_page.dart';
 import 'statistics.dart';
 
 class MenuPage extends StatefulWidget {
+  final Function saveTime;
+  MenuPage(this.saveTime);
   @override
-  _MenuPageState createState() => _MenuPageState();
+  _MenuPageState createState() => _MenuPageState(this.saveTime);
 }
 
 class _MenuPageState extends State<MenuPage> {
+  final Function saveTime;
+  _MenuPageState(this.saveTime);
   @override
   Widget build(BuildContext context) {
     return Scaffold(appBar: AppBar(title: Text('Pianist Bot', style: TextStyle(color:Colors.white)),leading: null,),
@@ -23,7 +27,7 @@ class _MenuPageState extends State<MenuPage> {
         children: <Widget>[
         MenuOption(0,4,0, 'Teclado',navigateToPianoPage,'images/piano.png'),   
         MenuOption(0,4,0, 'Biblioteca Musical',navigateToReproductionPage,'images/playButton.png'),
-        MenuOption(0,4,2, 'Estadística',navigateToControlPanelPage,'images/controlPanel.png'),
+        MenuOption(0,4,2, 'Estadística',navigateToStatisticsPage,'images/controlPanel.png'),
         ],
     );
   }
@@ -40,9 +44,9 @@ class _MenuPageState extends State<MenuPage> {
     }));
   }
 
-    void navigateToControlPanelPage() {
+    void navigateToStatisticsPage() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return StatisticsPage();
+      return StatisticsPage(saveTime);
     }));
   }
 }

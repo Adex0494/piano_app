@@ -19,7 +19,7 @@ void moveToLastScreen() {
   
   @override
   Widget build(BuildContext context) {
-
+debugPrint('building piano');
     if(!PianoApp.stopwatch.isRunning)
       {
         debugPrint(PianoApp.stopwatch.elapsedMilliseconds.toString());
