@@ -30,15 +30,49 @@ class _StatisticsPageState extends State<StatisticsPage> {
   DateTime _lastSelectedDate;
   DatabaseHelper databaseHelper = DatabaseHelper();
   List<Use> useList;
-  
 
+  @override
+  initState() {
+    
+    super.initState();
+
+  }
+  
+  int distanceFromSunday(String day){
+    switch(day){
+      case 'Sunday': return 0;
+      case 'Monday': return 1;
+      case 'Tuesday': return 2;
+      case 'Wednesday': return 3;
+      case 'Thursday': return 4;
+      case 'Friday': return 5;
+      case 'Saturday': return 6;
+      default: return -1;
+    }
+  }
+
+  List<String> dateRangeFromWeek(DateTime date){
+    int theDistanceFromSunday = distanceFromSunday(DateFormat('EEEE').format(date));
+    DateTime rangeStart = date.add(Duration(days: -theDistanceFromSunday));
+    DateTime rangeEnd = date.add(Duration(days: -theDistanceFromSunday+6));
+    List<String> range = [rangeStart.toString(),rangeEnd.toString()];
+    return range;
+  }
 
   void getUse()async{
-    //PianoApp.stopwatch.stop();
+
+     //PianoApp.stopwatch.stop();
     if(PianoApp.stopwatch.elapsedMilliseconds > 30000)
       await saveTime();
-    debugPrint('entering');
+
+    // for(int i=0;i<7;i++){
+    //   List<String> range = dateRangeFromWeek(DateTime.now().add(Duration(days: -7+i)));
+    // debugPrint('Desde: '+ range[0] + ' Hasta: ' +range[1]);
+    // }
+    
+    List<String> range = dateRangeFromWeek(DateTime.now());
     useList = await databaseHelper.getUseFromUserList(1);
+
     for(int i =0; i<useList.length; i++){
       debugPrint(useList[i].date +' ' + useList[i].minutes.toString());
       
