@@ -108,6 +108,18 @@ class DatabaseHelper {
   }
 
 
+//----------------Get use from a user with a specified date map List
+    Future<Map<String, dynamic>> getUseFromUserAndDateMapList(int userId,String date) async {
+    Database db = await this.database;
+    List<Map<String, dynamic>> result =
+        await db.rawQuery("SELECT * FROM $useTable WHERE $colUserId = userId AND $colDate LIKE '$date%' ORDER BY $colId ASC");
+    if (result.length!=0)
+        return result[0];
+      else return null;
+  }
+
+
+
   //----------------Get last use from a user map 
     Future<Map<String, dynamic>> getLastUseFromUserMap(int userId) async {
     Database db = await this.database;
@@ -135,6 +147,17 @@ class DatabaseHelper {
     Future<Use> getLastUseFromUser(int userId) async {
     Map<String, dynamic> map = await getLastUseFromUserMap(userId);
     if (map!=null)
+    {
+      Use object = Use.toUse(map);
+      return object;
+    } else return null;
+  }
+
+  //-----------------Get use from a user and a date object List
+
+  Future<Use> getUseFromUserAndDateList(int userId,String date) async {
+    Map<String, dynamic> map = await getUseFromUserAndDateMapList(userId,date);
+        if (map!=null)
     {
       Use object = Use.toUse(map);
       return object;

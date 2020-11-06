@@ -29,13 +29,22 @@ class _StatisticsPageState extends State<StatisticsPage> {
   DateTime _firstSelectedDate;
   DateTime _lastSelectedDate;
   DatabaseHelper databaseHelper = DatabaseHelper();
-  List<Use> useList;
-
+  List<Use> useList=List<Use>();
+  int totalUseInMinutes = 0;
+  List<int> minutesUsed=[0,0,0,0,0,0,0];
+  List<DateTime> range=[DateTime.now(),DateTime.now()];
   @override
   initState() {
-    
+    getUse();
     super.initState();
 
+  }
+
+  String timeInMinutesOrHours(int minutes){
+    if(minutes<60) return '$minutes' +' m';
+    else {
+     return ((minutes/60).round().toString() + ' h');
+    }
   }
   
   int distanceFromSunday(String day){
@@ -51,34 +60,64 @@ class _StatisticsPageState extends State<StatisticsPage> {
     }
   }
 
-  List<String> dateRangeFromWeek(DateTime date){
+  List<DateTime> dateRangeFromWeek(DateTime date){
     int theDistanceFromSunday = distanceFromSunday(DateFormat('EEEE').format(date));
     DateTime rangeStart = date.add(Duration(days: -theDistanceFromSunday));
     DateTime rangeEnd = date.add(Duration(days: -theDistanceFromSunday+6));
-    List<String> range = [rangeStart.toString(),rangeEnd.toString()];
+    List<DateTime> range = [rangeStart,rangeEnd];
     return range;
   }
 
+  String getMonthOrDayString(int number){
+    String theString;
+    if (number<10) theString='0$number';
+    else theString= number.toString();
+    return theString; 
+  }
+
+  String getDateStringFromDateTime(DateTime theDateTime){
+    return theDateTime.year.toString()+'-'+getMonthOrDayString(theDateTime.month)+'-'+getMonthOrDayString(theDateTime.day);
+  }
+
+  double getHeightFactor(int theMinutesUsed){
+    if (totalUseInMinutes==0) return 0.0;
+    else {return theMinutesUsed/totalUseInMinutes;
+  }
+  }
+
   void getUse()async{
+    List<int> auxMinutesUsed=List<int>();
+    int auxTotalUseInMinutes=0;
 
      //PianoApp.stopwatch.stop();
     if(PianoApp.stopwatch.elapsedMilliseconds > 30000)
       await saveTime();
 
-    // for(int i=0;i<7;i++){
-    //   List<String> range = dateRangeFromWeek(DateTime.now().add(Duration(days: -7+i)));
-    // debugPrint('Desde: '+ range[0] + ' Hasta: ' +range[1]);
-    // }
-    
-    List<String> range = dateRangeFromWeek(DateTime.now());
-    useList = await databaseHelper.getUseFromUserList(1);
-
-    for(int i =0; i<useList.length; i++){
-      debugPrint(useList[i].date +' ' + useList[i].minutes.toString());
+    //Getting range
+    List<DateTime> auxrange = dateRangeFromWeek(DateTime.now());
+    //adding the use of each day in range
+    for(int i=0;i<=auxrange[1].difference(auxrange[0]).inDays;i++){
+      Use auxUse = (await databaseHelper.getUseFromUserAndDateList(1,getDateStringFromDateTime(auxrange[0].add(Duration(days:i)))));
+      if (auxUse!=null)
+      {
+        //useList.add(auxUse);
+        auxMinutesUsed.add(auxUse.minutes);
+        auxTotalUseInMinutes+=auxUse.minutes;
+      }
+      else{auxMinutesUsed.add(0);}
+      // for (int i=0;i<useList.length;i++){
+      //   debugPrint(i.toString());
+      //   if(useList[i]!=null)
+      //   debugPrint(useList[i].date);
+      // }
       
     }
+    setState(() {
+      this.totalUseInMinutes=auxTotalUseInMinutes;
+      this.minutesUsed=auxMinutesUsed;
+      this.range=auxrange;
+    });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -264,13 +303,13 @@ class _StatisticsPageState extends State<StatisticsPage> {
                                             MainAxisAlignment.spaceAround,
                                         crossAxisAlignment: CrossAxisAlignment.center,
                                         children: <Widget>[
-                                          DayBar(0.5, 'Lu'),
-                                          DayBar(0.2, 'Ma'),
-                                          DayBar(0.3, 'Mi'),
-                                          DayBar(0.7, 'Ju'),
-                                          DayBar(0.35, 'Vi'),
-                                          DayBar(0.6, 'Sa'),
-                                          DayBar(0.4, 'Do'),
+                                          DayBar(getHeightFactor(minutesUsed[0]), 'Do',range[0].day,timeInMinutesOrHours(minutesUsed[0])),
+                                          DayBar(getHeightFactor(minutesUsed[1]), 'Lu', range[0].add(Duration(days:1)).day,timeInMinutesOrHours(minutesUsed[1])),
+                                          DayBar(getHeightFactor(minutesUsed[2]), 'Ma',range[0].add(Duration(days:2)).day,timeInMinutesOrHours(minutesUsed[2])),
+                                          DayBar(getHeightFactor(minutesUsed[3]), 'Mi',range[0].add(Duration(days:3)).day,timeInMinutesOrHours(minutesUsed[3])),
+                                          DayBar(getHeightFactor(minutesUsed[4]), 'Ju',range[0].add(Duration(days:4)).day,timeInMinutesOrHours(minutesUsed[4])),
+                                          DayBar(getHeightFactor(minutesUsed[5]), 'Vi',range[0].add(Duration(days:5)).day,timeInMinutesOrHours(minutesUsed[5])),
+                                          DayBar(getHeightFactor(minutesUsed[6]), 'Sa',range[0].add(Duration(days:6)).day,timeInMinutesOrHours(minutesUsed[6])),
                                         ]),
                                   ),
                                 )),
