@@ -119,8 +119,8 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
         (PianoApp.stopwatch.elapsedMilliseconds / 60000).round();
 
     Use lastUseSaved = await databaseHelper.getLastUseFromUser(1);
-    DateTime lastUseSavedDate;
-    if (lastUseSaved != null) {
+    DateTime lastUseSavedDate = DateTime(2019);
+    if (lastUseSaved != null) 
       lastUseSavedDate = DateTime.tryParse(lastUseSaved.date);
       if (lastUseSaved != null &&
           lastUseSavedDate.day == DateTime.now().day &&
@@ -132,7 +132,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
         debugPrint('updated time saved');
         PianoApp.stopwatch.reset();
       }
-    } else {
+    else {
       Use firstUseToday = Use(1, timeInMinutes, DateTime.now().toString());
       await databaseHelper.insertUse(firstUseToday);
       debugPrint('saved new');

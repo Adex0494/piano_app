@@ -33,11 +33,23 @@ class _StatisticsPageState extends State<StatisticsPage> {
   int totalUseInMinutes = 0;
   List<int> minutesUsed=[0,0,0,0,0,0,0];
   List<DateTime> range=[DateTime.now(),DateTime.now()];
+  DateTime selectedDate = DateTime.now();
+  Use todayUse = Use(1, 0, DateTime.now().toString());
+  bool gotTodayUse = false;
   @override
   initState() {
-    getUse();
+    getUse(selectedDate);
     super.initState();
 
+  }
+
+  void getTodayUse() async{
+    Use auxTodayUse = await databaseHelper.getUseFromUserAndDate(1, getDateStringFromDateTime(DateTime.now()));
+    if (auxTodayUse!=null){
+      setState(() {
+        this.todayUse=auxTodayUse;
+      });
+    }
   }
 
   String timeInMinutesOrHours(int minutes){
@@ -85,7 +97,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
   }
   }
 
-  void getUse()async{
+  void getUse(DateTime dateTime) async{
     List<int> auxMinutesUsed=List<int>();
     int auxTotalUseInMinutes=0;
 
@@ -93,24 +105,22 @@ class _StatisticsPageState extends State<StatisticsPage> {
     if(PianoApp.stopwatch.elapsedMilliseconds > 30000)
       await saveTime();
 
+    if(!gotTodayUse)
+    {
+      getTodayUse();
+      gotTodayUse = true;
+    }
     //Getting range
-    List<DateTime> auxrange = dateRangeFromWeek(DateTime.now());
+    List<DateTime> auxrange = dateRangeFromWeek(dateTime);
     //adding the use of each day in range
     for(int i=0;i<=auxrange[1].difference(auxrange[0]).inDays;i++){
-      Use auxUse = (await databaseHelper.getUseFromUserAndDateList(1,getDateStringFromDateTime(auxrange[0].add(Duration(days:i)))));
+      Use auxUse = (await databaseHelper.getUseFromUserAndDate(1,getDateStringFromDateTime(auxrange[0].add(Duration(days:i)))));
       if (auxUse!=null)
       {
-        //useList.add(auxUse);
         auxMinutesUsed.add(auxUse.minutes);
         auxTotalUseInMinutes+=auxUse.minutes;
       }
-      else{auxMinutesUsed.add(0);}
-      // for (int i=0;i<useList.length;i++){
-      //   debugPrint(i.toString());
-      //   if(useList[i]!=null)
-      //   debugPrint(useList[i].date);
-      // }
-      
+      else{auxMinutesUsed.add(0);}      
     }
     setState(() {
       this.totalUseInMinutes=auxTotalUseInMinutes;
@@ -142,7 +152,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                 onChanged: (String value) {
                   setState(() {
                     mode = value;
-                    getUse();
+                    getUse(selectedDate);
                   });
                 }),
           ),
@@ -290,7 +300,12 @@ class _StatisticsPageState extends State<StatisticsPage> {
                                 child: FlatButton(
                                   padding: EdgeInsets.all(0),
                                   child: IconButton(icon: Icon(Icons.arrow_back)),
-                                  onPressed: null,
+                                  onPressed: (){
+                                    setState(() {
+                                      selectedDate = selectedDate.add(Duration(days:-7));
+                                      getUse(selectedDate);
+                                    });
+                                  },
                                 )),
                             Container(
                                 height: 250,
@@ -319,7 +334,10 @@ class _StatisticsPageState extends State<StatisticsPage> {
                                 child: FlatButton(
                                   padding: EdgeInsets.all(0),
                                   child: IconButton(icon: Icon(Icons.arrow_forward)),
-                                  onPressed: null,
+                                  onPressed: (){
+                                    selectedDate = selectedDate.add(Duration(days:7));
+                                    getUse(selectedDate);
+                                  },
                                 )),
                           ],
                         ),
@@ -342,7 +360,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                   height: totalAvailableHeight * 0.2,
                   width: double.infinity,
                   child: Center(
-                      child: Text('Hoy',
+                      child: Text('Hoy: '+ timeInMinutesOrHours(todayUse.minutes),
                           style: Theme.of(context).textTheme.headline6)))
             ]));
   }
