@@ -14,7 +14,7 @@ class DatabaseHelper {
 
   //-----------------User table--------------------
   String userTable = 'user_table';
-  String colUsername ='username';
+  String colUsername = 'username';
   String colPassword = 'password';
 
   //-----------------Use table--------------------
@@ -25,14 +25,14 @@ class DatabaseHelper {
 
   DatabaseHelper._createInstance();
 
-    factory DatabaseHelper() {
+  factory DatabaseHelper() {
     if (_databaseHelper == null) {
       _databaseHelper = DatabaseHelper._createInstance();
     }
     return _databaseHelper;
   }
 
-    Future<Database> get database async {
+  Future<Database> get database async {
     //debugPrint('Getting database');
     if (_database == null) {
       debugPrint('Initializing database');
@@ -42,7 +42,7 @@ class DatabaseHelper {
     return _database;
   }
 
-   Future<Database> initializeDatabase() async {
+  Future<Database> initializeDatabase() async {
     Directory directory = await getApplicationDocumentsDirectory();
     String path = directory.path + 'pianoApp.db';
     debugPrint('Opening database');
@@ -66,25 +66,39 @@ class DatabaseHelper {
   //-------------Insert User----------------
   Future<int> insertUser(User user) async {
     Database db = await this.database;
-    int result =
-        await db.insert(userTable, user.toMap());
+    debugPrint('inserting user');
+    int result = await db.insert(userTable, user.toMap());
     return result;
   }
 
 //--------------Insert Use
-   Future<int> insertUse(Use use) async {
+  Future<int> insertUse(Use use) async {
     Database db = await this.database;
-    int result =
-        await db.insert(useTable, use.toMap());
+    int result = await db.insert(useTable, use.toMap());
     return result;
   }
 
 //----------------Get all users map List
-    Future<List<Map<String, dynamic>>> getUserMapList() async {
+  Future<List<Map<String, dynamic>>> getUserMapList() async {
     Database db = await this.database;
     List<Map<String, dynamic>> result =
         await db.rawQuery('SELECT * FROM $userTable ORDER BY $colId ASC');
     return result;
+  }
+
+  //------------------Get a user map
+  Future<Map<String, dynamic>> getAUserMap(String username) async {
+    debugPrint('getting map');
+    Database db = await this.database;
+    List<Map<String, dynamic>> result = await db
+        .rawQuery("SELECT * FROM $userTable WHERE $colUsername='$username'");
+    if (result.length != 0) {
+      debugPrint('returning map');
+      return result[0];
+    } else {
+      debugPrint('Returning the null map');
+      return null;
+    }
   }
 
 //-----------------Get all users object List
@@ -99,37 +113,51 @@ class DatabaseHelper {
     return objectList;
   }
 
+//-----------------Get a users object
+
+  Future<User> getAUser(String username) async {
+    debugPrint('getting user');
+    Map<String, dynamic> map = await getAUserMap(username);
+    if (map != null) {
+      debugPrint('The user is not null');
+      User object = User.toUser(map);
+      return object;
+    } else {
+      debugPrint('The user is null');
+      return null;
+    }
+  }
+
 //----------------Get all uses from a user map List
-    Future<List<Map<String, dynamic>>> getUseFromUserMapList(int userId) async {
+  Future<List<Map<String, dynamic>>> getUseFromUserMapList(int userId) async {
     Database db = await this.database;
-    List<Map<String, dynamic>> result =
-        await db.rawQuery('SELECT * FROM $useTable WHERE $colUserId = userId ORDER BY $colId ASC');
+    List<Map<String, dynamic>> result = await db.rawQuery(
+        'SELECT * FROM $useTable WHERE $colUserId = userId ORDER BY $colId ASC');
     return result;
   }
 
-
 //----------------Get use from a user with a specified date map List
-    Future<Map<String, dynamic>> getUseFromUserAndDateMap(int userId,String date) async {
+  Future<Map<String, dynamic>> getUseFromUserAndDateMap(
+      int userId, String date) async {
     Database db = await this.database;
-    List<Map<String, dynamic>> result =
-        await db.rawQuery("SELECT * FROM $useTable WHERE $colUserId = userId AND $colDate LIKE '$date%' ORDER BY $colId ASC");
-    if (result.length!=0)
-        return result[0];
-      else return null;
-  }
-
-
-
-  //----------------Get last use from a user map 
-    Future<Map<String, dynamic>> getLastUseFromUserMap(int userId) async {
-    Database db = await this.database;
-    List<Map<String, dynamic>> result =
-        await db.rawQuery('SELECT * FROM $useTable WHERE $colUserId = userId ORDER BY $colId DESC LIMIT 1');
-    if (result.length!=0)
+    List<Map<String, dynamic>> result = await db.rawQuery(
+        "SELECT * FROM $useTable WHERE $colUserId = userId AND $colDate LIKE '$date%' ORDER BY $colId ASC");
+    if (result.length != 0)
       return result[0];
-    else return null;
+    else
+      return null;
   }
 
+  //----------------Get last use from a user map
+  Future<Map<String, dynamic>> getLastUseFromUserMap(int userId) async {
+    Database db = await this.database;
+    List<Map<String, dynamic>> result = await db.rawQuery(
+        'SELECT * FROM $useTable WHERE $colUserId = userId ORDER BY $colId DESC LIMIT 1');
+    if (result.length != 0)
+      return result[0];
+    else
+      return null;
+  }
 
 //-----------------Get all uses from a user object List
 
@@ -144,26 +172,25 @@ class DatabaseHelper {
   }
 
   //----------------------Get last use object
-    Future<Use> getLastUseFromUser(int userId) async {
+  Future<Use> getLastUseFromUser(int userId) async {
     Map<String, dynamic> map = await getLastUseFromUserMap(userId);
-    if (map!=null)
-    {
+    if (map != null) {
       Use object = Use.toUse(map);
       return object;
-    } else return null;
+    } else
+      return null;
   }
 
   //-----------------Get use from a user and a date object List
 
-  Future<Use> getUseFromUserAndDate(int userId,String date) async {
-    Map<String, dynamic> map = await getUseFromUserAndDateMap(userId,date);
-        if (map!=null)
-    {
+  Future<Use> getUseFromUserAndDate(int userId, String date) async {
+    Map<String, dynamic> map = await getUseFromUserAndDateMap(userId, date);
+    if (map != null) {
       Use object = Use.toUse(map);
       return object;
-    } else return null;
+    } else
+      return null;
   }
-
 
 // ----------------------Update use
   Future<int> updateUse(Use use) async {
@@ -172,7 +199,4 @@ class DatabaseHelper {
         where: '$colId = ?', whereArgs: [use.id]);
     return result;
   }
-
-
 }
-
