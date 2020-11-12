@@ -17,11 +17,15 @@ class _AddUserState extends State<AddUser> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Registrar usuario')),
-      backgroundColor: Color.fromRGBO(59, 77, 101, 1),
-      body: scaffoldBody(),
-    );
+    return WillPopScope(
+        onWillPop: () {
+          moveToLastScreen();
+        },
+        child: Scaffold(
+          appBar: AppBar(title: Text('Registrar usuario')),
+          backgroundColor: Color.fromRGBO(59, 77, 101, 1),
+          body: scaffoldBody(),
+        ));
   }
 
   void _showAlertDialog(String title, String message) {

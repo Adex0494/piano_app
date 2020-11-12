@@ -69,10 +69,10 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
   TextEditingController passwordControler = TextEditingController();
   DatabaseHelper databaseHelper = DatabaseHelper();
   bool stopWatchWasRunning = false;
+  int userId;
 
   @override
   initState() {
-    insertDummyUser();
     WidgetsBinding.instance.addObserver(this);
     super.initState();
     returnScaffoldBody();
@@ -84,14 +84,17 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     debugPrint(state.toString());
     switch (state) {
       case AppLifecycleState.inactive:
-        if (PianoApp.stopwatch.isRunning) {PianoApp.stopwatch.stop(); stopWatchWasRunning=true;}
+        if (PianoApp.stopwatch.isRunning) {
+          PianoApp.stopwatch.stop();
+          stopWatchWasRunning = true;
+        }
         debugPrint(PianoApp.stopwatch.elapsedMilliseconds.toString());
-        if (PianoApp.stopwatch.elapsedMilliseconds > 30000) saveTime();
+        if (PianoApp.stopwatch.elapsedMilliseconds > 30000) saveTime(userId);
         break;
       case AppLifecycleState.resumed:
-        if(stopWatchWasRunning){
+        if (stopWatchWasRunning) {
           PianoApp.stopwatch.start();
-          stopWatchWasRunning=false;
+          stopWatchWasRunning = false;
         }
         //if (PianoApp.stopwatch.elapsedMilliseconds > 30000) saveTime();
         break;
@@ -106,34 +109,27 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  insertDummyUser() async {
-    User user = User('Ari', '1');
-    await databaseHelper.insertUser(user);
-  }
-   
-
-  void saveTime() async {
+  void saveTime(int userId) async {
     debugPrint('saving');
     if (PianoApp.stopwatch.isRunning) PianoApp.stopwatch.stop();
     int timeInMinutes =
         (PianoApp.stopwatch.elapsedMilliseconds / 60000).round();
 
-    Use lastUseSaved = await databaseHelper.getLastUseFromUser(1);
+    Use lastUseSaved = await databaseHelper.getLastUseFromUser(userId);
     DateTime lastUseSavedDate = DateTime(2019);
-    if (lastUseSaved != null) 
+    if (lastUseSaved != null)
       lastUseSavedDate = DateTime.tryParse(lastUseSaved.date);
-      if (lastUseSaved != null &&
-          lastUseSavedDate.day == DateTime.now().day &&
-          lastUseSavedDate.month == DateTime.now().month &&
-          lastUseSavedDate.year == DateTime.now().year) {
-        lastUseSaved.minutes += timeInMinutes;
-        lastUseSaved.date = DateTime.now().toString();
-        await databaseHelper.updateUse(lastUseSaved);
-        debugPrint('updated time saved');
-        PianoApp.stopwatch.reset();
-      }
-    else {
-      Use firstUseToday = Use(1, timeInMinutes, DateTime.now().toString());
+    if (lastUseSaved != null &&
+        lastUseSavedDate.day == DateTime.now().day &&
+        lastUseSavedDate.month == DateTime.now().month &&
+        lastUseSavedDate.year == DateTime.now().year) {
+      lastUseSaved.minutes += timeInMinutes;
+      lastUseSaved.date = DateTime.now().toString();
+      await databaseHelper.updateUse(lastUseSaved);
+      debugPrint('updated time saved');
+      PianoApp.stopwatch.reset();
+    } else {
+      Use firstUseToday = Use(userId, timeInMinutes, DateTime.now().toString());
       await databaseHelper.insertUse(firstUseToday);
       debugPrint('saved new');
       PianoApp.stopwatch.reset();
@@ -302,9 +298,9 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
                               ),
                             ),
                             onPressed: () {
-                              navigateToMenuPage();
+                              //navigateToMenuPage();
                               //When the Iniciar Sesión button is pressed...
-                              //_validateThenNavigate();
+                              _validateThenNavigate();
                             },
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(5.0)),
@@ -329,10 +325,50 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     });
   }
 
-  void navigateToMenuPage() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return MenuPage(saveTime);
+  void _validateThenNavigate() async {
+    User user = await databaseHelper.getAUser(usernameController.text);
+    if (user != null) {
+      if (passwordControler.text == user.password) {
+        setState(() {
+          userId = user.id;
+        });
+
+        navigateToMenuPage(user.id);
+      } else {
+        _showAlertDialog('Contraseña', 'La Contraseña es incorrecta.');
+      }
+    } else {
+      _showAlertDialog('Nombre de Usuario', 'El Nombre de Usuario no existe.');
+    }
+  }
+
+  void _blankCredentials() {
+    setState(() {
+      PianoApp.stopwatch.stop();
+      PianoApp.stopwatch.reset();
+      userId = null;
+      usernameController.text = '';
+      passwordControler.text = '';
+    });
+  }
+
+  void _showAlertDialog(String title, String message) {
+    AlertDialog alertDialog = AlertDialog(
+      title: Text(title),
+      content: Text(message),
+    );
+    showDialog(context: context, builder: (_) => alertDialog);
+  }
+
+  void navigateToMenuPage(int userId) async {
+    debugPrint('$userId');
+    bool result =
+        await Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return MenuPage(userId, saveTime);
     }));
+    if (result) {
+      _blankCredentials();
+    }
   }
 
   void navigateToPianoPage() {
@@ -353,9 +389,13 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
   //   }));
   // }
 
-  void navigateToAddUser() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
+  void navigateToAddUser() async {
+    bool result =
+        await Navigator.push(context, MaterialPageRoute(builder: (context) {
       return AddUser();
     }));
+    if (result) {
+      _blankCredentials();
+    }
   }
 }

@@ -6,33 +6,45 @@ import 'reproduction_page.dart';
 import 'statistics.dart';
 
 class MenuPage extends StatefulWidget {
+  final int userId;
   final Function saveTime;
-  MenuPage(this.saveTime);
+  MenuPage(this.userId, this.saveTime);
   @override
-  _MenuPageState createState() => _MenuPageState(this.saveTime);
+  _MenuPageState createState() => _MenuPageState(this.userId, this.saveTime);
 }
 
 class _MenuPageState extends State<MenuPage> {
+  final int userId;
   final Function saveTime;
-  _MenuPageState(this.saveTime);
+  _MenuPageState(this.userId, this.saveTime);
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title: Text('Pianist Bot', style: TextStyle(color:Colors.white)),leading: null,),
-      body: menuScaffoldBody(),
+    return WillPopScope(
+        onWillPop: () {
+          moveToLastScreen();
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text('Pianist Bot', style: TextStyle(color: Colors.white)),
+            leading: null,
+          ),
+          body: menuScaffoldBody(),
+        ));
+  }
+
+  Widget menuScaffoldBody() {
+    return Column(
+      children: <Widget>[
+        MenuOption(0, 4, 0, 'Teclado', navigateToPianoPage, 'images/piano.png'),
+        MenuOption(0, 4, 0, 'Biblioteca Musical', navigateToReproductionPage,
+            'images/playButton.png'),
+        MenuOption(0, 4, 2, 'Estadística', navigateToStatisticsPage,
+            'images/controlPanel.png'),
+      ],
     );
   }
 
-    Widget menuScaffoldBody() {
-      return Column(
-        children: <Widget>[
-        MenuOption(0,4,0, 'Teclado',navigateToPianoPage,'images/piano.png'),   
-        MenuOption(0,4,0, 'Biblioteca Musical',navigateToReproductionPage,'images/playButton.png'),
-        MenuOption(0,4,2, 'Estadística',navigateToStatisticsPage,'images/controlPanel.png'),
-        ],
-    );
-  }
-
-   void navigateToPianoPage() {
+  void navigateToPianoPage() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return PianoPage();
     }));
@@ -44,9 +56,15 @@ class _MenuPageState extends State<MenuPage> {
     }));
   }
 
-    void navigateToStatisticsPage() {
+  void navigateToStatisticsPage() {
+    debugPrint('$userId');
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return StatisticsPage(saveTime);
+      return StatisticsPage(userId, saveTime);
     }));
+  }
+
+  void moveToLastScreen() {
+    debugPrint('Moving to last Screen');
+    Navigator.pop(context, true);
   }
 }
