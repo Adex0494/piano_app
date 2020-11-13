@@ -86,6 +86,14 @@ class DatabaseHelper {
     return result;
   }
 
+//----------------Get all uses map List
+  Future<List<Map<String, dynamic>>> getUseMapList() async {
+    Database db = await this.database;
+    List<Map<String, dynamic>> result =
+        await db.rawQuery('SELECT * FROM $useTable ORDER BY $colId ASC');
+    return result;
+  }
+
   //------------------Get a user map
   Future<Map<String, dynamic>> getAUserMap(String username) async {
     debugPrint('getting map');
@@ -113,6 +121,18 @@ class DatabaseHelper {
     return objectList;
   }
 
+  //-----------------Get all uses object List
+
+  Future<List<Use>> getUseList() async {
+    List<Map<String, dynamic>> mapList = await getUseMapList();
+    int count = mapList.length;
+    List<Use> objectList = List<Use>();
+    for (int i = 0; i < count; i++) {
+      objectList.add(Use.toUse(mapList[i]));
+    }
+    return objectList;
+  }
+
 //-----------------Get a users object
 
   Future<User> getAUser(String username) async {
@@ -132,19 +152,20 @@ class DatabaseHelper {
   Future<List<Map<String, dynamic>>> getUseFromUserMapList(int userId) async {
     Database db = await this.database;
     List<Map<String, dynamic>> result = await db.rawQuery(
-        'SELECT * FROM $useTable WHERE $colUserId = userId ORDER BY $colId ASC');
+        'SELECT * FROM $useTable WHERE $colUserId = $userId ORDER BY $colId ASC');
     return result;
   }
 
 //----------------Get use from a user with a specified date map List
   Future<Map<String, dynamic>> getUseFromUserAndDateMap(
-      int userId, String date) async {
+      int thisUserId, String date) async {
+    debugPrint('get use from user and date map, user id = $thisUserId');
     Database db = await this.database;
     List<Map<String, dynamic>> result = await db.rawQuery(
-        "SELECT * FROM $useTable WHERE $colUserId = userId AND $colDate LIKE '$date%' ORDER BY $colId ASC");
-    if (result.length != 0)
+        "SELECT * FROM $useTable WHERE $colUserId = $thisUserId AND $colDate LIKE '$date%' ORDER BY $colId ASC");
+    if (result.length != 0) {
       return result[0];
-    else
+    } else
       return null;
   }
 
@@ -152,7 +173,7 @@ class DatabaseHelper {
   Future<Map<String, dynamic>> getLastUseFromUserMap(int userId) async {
     Database db = await this.database;
     List<Map<String, dynamic>> result = await db.rawQuery(
-        'SELECT * FROM $useTable WHERE $colUserId = userId ORDER BY $colId DESC LIMIT 1');
+        'SELECT * FROM $useTable WHERE $colUserId = $userId ORDER BY $colId DESC LIMIT 1');
     if (result.length != 0)
       return result[0];
     else

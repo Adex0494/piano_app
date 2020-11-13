@@ -39,6 +39,9 @@ class _StatisticsPageState extends State<StatisticsPage> {
   DateTime selectedDate = DateTime.now();
   Use todayUse;
   bool gotTodayUse = false;
+  String monthOrMonthes = '';
+  String weekToShow = 'Esta semana';
+  int weekCount = 0;
   @override
   initState() {
     debugPrint('$userId');
@@ -54,6 +57,54 @@ class _StatisticsPageState extends State<StatisticsPage> {
       setState(() {
         this.todayUse = auxTodayUse;
       });
+    }
+  }
+
+  void showMonthOrMonthes() {
+    if (range[0].month == range[1].month) {
+      monthOrMonthes = getMonthName(range[0].month);
+    } else {
+      monthOrMonthes =
+          getMonthName(range[0].month) + '-' + getMonthName(range[1].month);
+    }
+  }
+
+  String getMonthName(int monthNumber) {
+    switch (monthNumber) {
+      case 1:
+        return 'Enero';
+      case 2:
+        return 'Febrero';
+      case 3:
+        return 'Marzo';
+      case 4:
+        return 'Abril';
+      case 5:
+        return 'Mayo';
+      case 6:
+        return 'Junio';
+      case 7:
+        return 'Julio';
+      case 8:
+        return 'Agosto';
+      case 9:
+        return 'Septiembre';
+      case 10:
+        return 'Octubre';
+      case 11:
+        return 'Noviembre';
+      case 12:
+        return 'Diciembre';
+    }
+  }
+
+  void getWeekLabel() {
+    if (weekCount == 0)
+      weekToShow = 'Esta semana';
+    else if (weekCount == -1)
+      weekToShow = 'La semana pasada';
+    else {
+      weekToShow = 'Hace ${(-weekCount).toString()}' + ' semanas';
     }
   }
 
@@ -121,6 +172,14 @@ class _StatisticsPageState extends State<StatisticsPage> {
   }
 
   void getUse(DateTime dateTime) async {
+    List<Use> useList = await databaseHelper.getUseList();
+    for (int i = 0; i < useList.length; i++) {
+      debugPrint(useList[i].id.toString() +
+          useList[i].userId.toString() +
+          useList[i].minutes.toString() +
+          useList[i].date);
+    }
+
     List<int> auxMinutesUsed = List<int>();
     int auxTotalUseInMinutes = 0;
 
@@ -148,6 +207,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
       this.totalUseInMinutes = auxTotalUseInMinutes;
       this.minutesUsed = auxMinutesUsed;
       this.range = auxrange;
+      showMonthOrMonthes();
+      getWeekLabel();
     });
   }
 
@@ -271,27 +332,33 @@ class _StatisticsPageState extends State<StatisticsPage> {
                 ),
                 //color: Colors.green,
                 height: totalAvailableHeight * 0.2,
-                child: SingleChildScrollView(
-                  child: Column(
-                    //----------------------top column--------------
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(8),
-                        child: Text(
-                          'FILTROS',
-                          style: Theme.of(context).textTheme.headline3,
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          periodOrRangeRadio('Por periodo'),
-                          periodOrRangeRadio('Por rango')
-                        ],
-                      ),
-                      periodOrRangeWidget(),
-                    ],
+                // child: SingleChildScrollView(
+                //   child: Column(
+                //     //----------------------top column--------------
+                //     children: [
+                //       Container(
+                //         padding: EdgeInsets.all(8),
+                //         child: Text(
+                //           'FILTROS',
+                //           style: Theme.of(context).textTheme.headline3,
+                //           textAlign: TextAlign.center,
+                //         ),
+                //       ),
+                //       Row(
+                //         mainAxisAlignment: MainAxisAlignment.spaceAround,
+                //         children: [
+                //           periodOrRangeRadio('Por periodo'),
+                //           periodOrRangeRadio('Por rango')
+                //         ],
+                //       ),
+                //       periodOrRangeWidget(),
+                //     ],
+                //   ),
+                // ),
+                child: Center(
+                  child: Text(
+                    monthOrMonthes,
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -309,7 +376,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                             child: Padding(
                           padding: const EdgeInsets.all(7.0),
                           child: Text(
-                            'Este periodo o rango',
+                            weekToShow,
                             style: Theme.of(context).textTheme.headline3,
                           ),
                         )),
@@ -325,6 +392,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                                       IconButton(icon: Icon(Icons.arrow_back)),
                                   onPressed: () {
                                     setState(() {
+                                      weekCount--;
                                       selectedDate =
                                           selectedDate.add(Duration(days: -7));
                                       getUse(selectedDate);
@@ -408,9 +476,12 @@ class _StatisticsPageState extends State<StatisticsPage> {
                                   child: IconButton(
                                       icon: Icon(Icons.arrow_forward)),
                                   onPressed: () {
-                                    selectedDate =
-                                        selectedDate.add(Duration(days: 7));
-                                    getUse(selectedDate);
+                                    if (weekCount < 0) {
+                                      weekCount++;
+                                      selectedDate =
+                                          selectedDate.add(Duration(days: 7));
+                                      getUse(selectedDate);
+                                    }
                                   },
                                 )),
                           ],
@@ -419,7 +490,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                             child: Padding(
                           padding: const EdgeInsets.only(top: 7.0),
                           child: Text(
-                            'Total del periodo o rango: ',
+                            'Total: ${timeInMinutesOrHours(totalUseInMinutes)}',
                             style: Theme.of(context).textTheme.headline3,
                           ),
                         ))
