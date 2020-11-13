@@ -70,52 +70,45 @@ class PianoPageState extends State<PianoPage> {
       ));
     }
 
-    Widget timeTextField(String theText,Function function) {
+    Widget timeTextField(String theText, Function function) {
       return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-        //   Padding(
-        //     padding: const EdgeInsets.all(8.0),
-        //     child: Center(
-        //         child: RaisedButton(
-        //           elevation: 5,
-        //           onPressed: function,
-        //             child: Text(
-        //       theText,
-        //       style: TextStyle(
-        //         fontSize: 16,
-        //         fontWeight: FontWeight.bold,
-        //       ),
-        //     ))
-        //     ),
-        //   ),
-          TextFormField(
-            //style: subtitleStyle,
-            //controller: usernameController,
-            cursorColor: Colors.black,
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(
-                icon: Icon(
-                  Icons.timer,
-                  color: Colors.black,
-                ),
-                labelText: theText,
-                labelStyle: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black
-                      ), 
-                enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black)),
-                focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black))),
-            // enabledBorder: OutlineInputBorder(
-            //   borderSide: BorderSide(color: Colors.redAccent),
-            //   borderRadius: BorderRadius.circular(5.0),
-            // )
+          Center(
+            child: Text(theText,style: TextStyle(fontSize: 10,fontWeight: FontWeight.bold),textAlign: TextAlign.center,)
+          ),
+          Container(
+            height: mediaQuery.size.width*0.05,
+            width: mediaQuery.size.width*0.1,
+            child: TextFormField(
+              //style: subtitleStyle,
+              //controller: usernameController,
+              cursorColor: Colors.black,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                
+                  icon: Icon(
+                    Icons.timer,
+                    color: Colors.black,
+                  ),
+                  //labelText: theText,
+                  // labelStyle: TextStyle(
+                  //     fontSize: 10,
+                  //     fontWeight: FontWeight.bold,
+                  //     color: Colors.black),
+                  enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black)),
+                  focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black))),
+              // enabledBorder: OutlineInputBorder(
+              //   borderSide: BorderSide(color: Colors.redAccent),
+              //   borderRadius: BorderRadius.circular(5.0),
+              // )
 
-            onChanged: (value) {
-              //when Usuario text changes...
-            },
+              onChanged: (value) {
+                //when Usuario text changes...
+              },
+            ),
           ),
         ],
       );
@@ -123,9 +116,12 @@ class PianoPageState extends State<PianoPage> {
 
     Widget topBar() {
       return Container(
+        color: Colors.white,
         height: totalAvailableHeight * 0.3,
         width: mediaQuery.size.width,
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Dedos
             Expanded(
@@ -160,15 +156,11 @@ class PianoPageState extends State<PianoPage> {
             ),
 
             //Tiempo presionado
-            Expanded( 
-              child: timeTextField('Tiempo presionado (s)',(){})
-            ),
+            Expanded(child: Center(child: timeTextField('Tiempo presionado (s)', () {}))),
 
             //Tiempo Delay
             //Tiempo presionado
-            Expanded( 
-              child: timeTextField('Tiempo delay (s)',(){})
-            ),
+            Expanded(child: Center(child: timeTextField('Tiempo delay (s)', () {}))),
 
             //Salvar
             Expanded(
@@ -176,43 +168,47 @@ class PianoPageState extends State<PianoPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   Container(
+                    color: Colors.white,
                     height: totalAvailableHeight * 0.08,
-                    width: mediaQuery.size.width/5.5,
+                    width: mediaQuery.size.width / 5.5,
                     child: RaisedButton(
-                      onPressed: null,
+                      onPressed: (){},
                       color: Colors.white,
                       elevation: 7,
-                      child: Text('Grabar',style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        )),
+                      child: Text('Grabar',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          )),
                     ),
                   ),
                   Container(
-                    width: mediaQuery.size.width/5.5,
+                    width: mediaQuery.size.width / 5.5,
                     height: totalAvailableHeight * 0.08,
                     child: RaisedButton(
-                      onPressed: null,
+                      onPressed: (){},
                       color: Colors.white,
                       elevation: 7,
-                      child: Text('Guardar',style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        )),
+                      child: Text('Guardar',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          )),
                     ),
                   ),
                   Container(
-                   // width: ,
-                   height: totalAvailableHeight * 0.08,
-                   width: mediaQuery.size.width/5.5,
+                    // width: ,
+                    height: totalAvailableHeight * 0.08,
+                    width: mediaQuery.size.width / 5.5,
                     child: RaisedButton(
-                      onPressed: null,
+                      onPressed: (){},
                       color: Colors.white,
                       elevation: 7,
-                      child: Text('Guardar todo',style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        )),
+                      child: Text('Guardar todo',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          )),
                     ),
                   )
                 ],
@@ -230,6 +226,14 @@ class PianoPageState extends State<PianoPage> {
             padding: const EdgeInsets.only(bottom: 0.5, top: 0.5),
             child: Container(
               decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 5,
+                      blurRadius: 7,
+                      offset: Offset(0, 3), // changes position of shadow
+                    ),
+                  ],
                   border: Border.all(color: Colors.black, width: 1.5),
                   borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(7),
@@ -237,6 +241,7 @@ class PianoPageState extends State<PianoPage> {
               width: mediaQuery.size.width * 0.1, // 200.0,
               height: totalAvailableHeight * 0.65,
               child: RaisedButton(
+                color: Colors.white,
                 onPressed: onMainKeyPress,
               ),
             )),
@@ -244,6 +249,19 @@ class PianoPageState extends State<PianoPage> {
             top: 2.0,
             left: -mediaQuery.size.width * 0.025,
             child: Container(
+                decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 2,
+                        blurRadius: 7,
+                        offset: Offset(0, 3), // changes position of shadow
+                      ),
+                    ],
+                    border: Border.all(color: Colors.black, width: 1.5),
+                    borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(3),
+                        bottomRight: Radius.circular(3))),
                 width: mediaQuery.size.width * 0.05,
                 height: totalAvailableHeight * 0.4,
                 child: RaisedButton(
@@ -270,7 +288,17 @@ class PianoPageState extends State<PianoPage> {
         Padding(
             padding: const EdgeInsets.only(bottom: 0.5, top: 0.5),
             child: Container(
+              //color: Colors.white,
               decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 5,
+                      blurRadius: 7,
+                      offset: Offset(0, 3), // changes position of shadow
+                    ),
+                  ],
+                  //color: Colors.white,
                   border: Border.all(color: Colors.black, width: 1.5),
                   borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(7),
@@ -278,6 +306,7 @@ class PianoPageState extends State<PianoPage> {
               width: mediaQuery.size.width * 0.1, // 200.0,
               height: totalAvailableHeight * 0.65,
               child: RaisedButton(
+                color: Colors.white,
                 onPressed: onKeyPress,
               ),
             )),
@@ -306,7 +335,7 @@ class PianoPageState extends State<PianoPage> {
         moveToLastScreen();
       },
       child: Scaffold(
-          backgroundColor: Colors.grey,
+          backgroundColor: Colors.white,
           appBar: appBar,
           body: Column(
             children: [
