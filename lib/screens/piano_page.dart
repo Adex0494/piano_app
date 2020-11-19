@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'dart:convert';
 
 import '../main.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 
 class PianoPage extends StatefulWidget {
   @override
@@ -47,6 +49,27 @@ class PianoPageState extends State<PianoPage> {
     double totalAvailableHeight = mediaQuery.size.height -
         appBar.preferredSize.height -
         mediaQuery.padding.top;
+
+    void sendHttpPostRequest(String keyName){
+      //const url = 'https://pianoapp-f3679.firebaseio.com/keys.json';
+      const url = 'http://192.168.0.11:3000/key';
+      http.post(url,body: json.encode({'keyPressed': keyName}),
+      headers: {'Content-type':'application/json'}
+      ).then(
+         (response){
+           //print(response.toString());
+         }
+       );
+
+      // var client = http.Client();
+      // var url='http://192.168.0.11:3000/switchLed';
+      // client.post(url,body:json.encode({'status': true}),
+      //  headers: {'Content-type':'application/json'}).then(
+      //    (response){
+      //      print('status: true');
+      //    }
+      //  );
+    }
 
     Widget fingerRadio(String text) {
       return Container(
@@ -219,8 +242,7 @@ class PianoPageState extends State<PianoPage> {
       );
     }
 
-    Widget pianoButtonWithSuperKey(
-        Function onMainKeyPress, Function onSuperKeyPress, String theText) {
+    Widget pianoButtonWithSuperKey(String theText) {
       return Stack(overflow: Overflow.visible, children: <Widget>[
         Padding(
             padding: const EdgeInsets.only(bottom: 0.5, top: 0.5),
@@ -242,7 +264,7 @@ class PianoPageState extends State<PianoPage> {
               height: totalAvailableHeight * 0.65,
               child: RaisedButton(
                 color: Colors.white,
-                onPressed: onMainKeyPress,
+                onPressed: (){sendHttpPostRequest(theText);},
               ),
             )),
         Positioned(
@@ -266,7 +288,7 @@ class PianoPageState extends State<PianoPage> {
                 height: totalAvailableHeight * 0.4,
                 child: RaisedButton(
                   color: Colors.black,
-                  onPressed: onSuperKeyPress,
+                  onPressed:(){sendHttpPostRequest(theText+'s');},
                 ))),
         Positioned(
             bottom: 5,
@@ -283,7 +305,7 @@ class PianoPageState extends State<PianoPage> {
       ]);
     }
 
-    Widget pianoButton(Function onKeyPress, String theText) {
+    Widget pianoButton(String theText) {
       return Stack(overflow: Overflow.visible, children: <Widget>[
         Padding(
             padding: const EdgeInsets.only(bottom: 0.5, top: 0.5),
@@ -307,7 +329,7 @@ class PianoPageState extends State<PianoPage> {
               height: totalAvailableHeight * 0.65,
               child: RaisedButton(
                 color: Colors.white,
-                onPressed: onKeyPress,
+                onPressed: (){sendHttpPostRequest(theText);},
               ),
             )),
         Positioned(
@@ -346,42 +368,42 @@ class PianoPageState extends State<PianoPage> {
                     padding: EdgeInsets.only(top: 7.0),
                     child: Row(
                       children: <Widget>[
-                        pianoButton(() {}, 'C1'),
-                        pianoButtonWithSuperKey(() {}, () {}, 'D1'),
-                        pianoButtonWithSuperKey(() {}, () {}, 'E1'),
-                        pianoButton(() {}, 'F1'),
-                        pianoButtonWithSuperKey(() {}, () {}, 'G1'),
-                        pianoButtonWithSuperKey(() {}, () {}, 'A1'),
-                        pianoButtonWithSuperKey(() {}, () {}, 'B1'),
-                        pianoButton(() {}, 'C2'),
-                        pianoButtonWithSuperKey(() {}, () {}, 'D2'),
-                        pianoButtonWithSuperKey(() {}, () {}, 'E2'),
-                        pianoButton(() {}, 'F2'),
-                        pianoButtonWithSuperKey(() {}, () {}, 'G2'),
-                        pianoButtonWithSuperKey(() {}, () {}, 'A2'),
-                        pianoButtonWithSuperKey(() {}, () {}, 'B2'),
-                        pianoButton(() {}, 'C3'),
-                        pianoButtonWithSuperKey(() {}, () {}, 'D3'),
-                        pianoButtonWithSuperKey(() {}, () {}, 'E3'),
-                        pianoButton(() {}, 'F3'),
-                        pianoButtonWithSuperKey(() {}, () {}, 'G3'),
-                        pianoButtonWithSuperKey(() {}, () {}, 'A3'),
-                        pianoButtonWithSuperKey(() {}, () {}, 'B3'),
-                        pianoButton(() {}, 'C4'),
-                        pianoButtonWithSuperKey(() {}, () {}, 'D4'),
-                        pianoButtonWithSuperKey(() {}, () {}, 'E4'),
-                        pianoButton(() {}, 'F4'),
-                        pianoButtonWithSuperKey(() {}, () {}, 'G4'),
-                        pianoButtonWithSuperKey(() {}, () {}, 'A4'),
-                        pianoButtonWithSuperKey(() {}, () {}, 'B4'),
-                        pianoButton(() {}, 'C5'),
-                        pianoButtonWithSuperKey(() {}, () {}, 'D5'),
-                        pianoButtonWithSuperKey(() {}, () {}, 'E5'),
-                        pianoButton(() {}, 'F5'),
-                        pianoButtonWithSuperKey(() {}, () {}, 'G5'),
-                        pianoButtonWithSuperKey(() {}, () {}, 'A5'),
-                        pianoButtonWithSuperKey(() {}, () {}, 'B5'),
-                        pianoButton(() {}, 'C6'),
+                        pianoButton('C1'),
+                        pianoButtonWithSuperKey('D1'),
+                        pianoButtonWithSuperKey('E1'),
+                        pianoButton('F1'),
+                        pianoButtonWithSuperKey('G1'),
+                        pianoButtonWithSuperKey('A1'),
+                        pianoButtonWithSuperKey('B1'),
+                        pianoButton('C2'),
+                        pianoButtonWithSuperKey('D2'),
+                        pianoButtonWithSuperKey('E2'),
+                        pianoButton('F2'),
+                        pianoButtonWithSuperKey('G2'),
+                        pianoButtonWithSuperKey('A2'),
+                        pianoButtonWithSuperKey('B2'),
+                        pianoButton('C3'),
+                        pianoButtonWithSuperKey('D3'),
+                        pianoButtonWithSuperKey('E3'),
+                        pianoButton('F3'),
+                        pianoButtonWithSuperKey('G3'),
+                        pianoButtonWithSuperKey('A3'),
+                        pianoButtonWithSuperKey('B3'),
+                        pianoButton('C4'),
+                        pianoButtonWithSuperKey('D4'),
+                        pianoButtonWithSuperKey('E4'),
+                        pianoButton('F4'),
+                        pianoButtonWithSuperKey('G4'),
+                        pianoButtonWithSuperKey('A4'),
+                        pianoButtonWithSuperKey('B4'),
+                        pianoButton('C5'),
+                        pianoButtonWithSuperKey('D5'),
+                        pianoButtonWithSuperKey('E5'),
+                        pianoButton('F5'),
+                        pianoButtonWithSuperKey('G5'),
+                        pianoButtonWithSuperKey('A5'),
+                        pianoButtonWithSuperKey('B5'),
+                        pianoButton('C6'),
 
                         //pianoButton(() {}),
                       ],
