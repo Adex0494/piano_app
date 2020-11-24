@@ -15,6 +15,8 @@ class PianoPage extends StatefulWidget {
 
 class PianoPageState extends State<PianoPage> {
   String finger = '1';
+  bool switchIsOn = false;
+  int octaveOrder = 1;
   @override
   void initState() {
     super.initState();
@@ -44,22 +46,39 @@ class PianoPageState extends State<PianoPage> {
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
-    final PreferredSizeWidget appBar =
-        AppBar(title: Text('Piano', style: TextStyle(color: Colors.white)));
+    final PreferredSizeWidget appBar = AppBar(
+      title: Text('Piano', style: TextStyle(color: Colors.white)),
+      actions: [
+        Center(
+            child: Text(
+          'Modo grabación',
+          style: TextStyle(color: Colors.white, fontSize: 16),
+        )),
+        Switch(
+          activeColor: Colors.white,
+          activeTrackColor: Colors.white,
+          inactiveThumbColor: Colors.grey,
+          inactiveTrackColor: Colors.grey.withOpacity(0.5),
+          value: switchIsOn,
+          onChanged: (value) {
+            setState(() {
+              switchIsOn = value;
+            });
+          },
+        )
+      ],
+    );
     double totalAvailableHeight = mediaQuery.size.height -
         appBar.preferredSize.height -
         mediaQuery.padding.top;
 
-    void sendHttpPostRequest(String keyName){
+    void sendHttpPostRequest(String keyName) {
       //const url = 'https://pianoapp-f3679.firebaseio.com/keys.json';
-      const url = 'http://192.168.0.11:3000/key';
-      http.post(url,body: json.encode({'keyPressed': keyName}),
-      headers: {'Content-type':'application/json'}
-      ).then(
-         (response){
-           //print(response.toString());
-         }
-       );
+      const url = 'http://192.168.0.11:3000/tecla';
+      http.post(url,
+          body: json.encode({'keyPressed': keyName}),
+          headers: {'Content-type': 'application/json'}).then((response) {
+      });
 
       // var client = http.Client();
       // var url='http://192.168.0.11:3000/switchLed';
@@ -98,18 +117,20 @@ class PianoPageState extends State<PianoPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Center(
-            child: Text(theText,style: TextStyle(fontSize: 10,fontWeight: FontWeight.bold),textAlign: TextAlign.center,)
-          ),
+              child: Text(
+            theText,
+            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          )),
           Container(
-            height: mediaQuery.size.width*0.05,
-            width: mediaQuery.size.width*0.1,
+            height: mediaQuery.size.width * 0.05,
+            width: mediaQuery.size.width * 0.1,
             child: TextFormField(
               //style: subtitleStyle,
               //controller: usernameController,
               cursorColor: Colors.black,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                
                   icon: Icon(
                     Icons.timer,
                     color: Colors.black,
@@ -179,11 +200,14 @@ class PianoPageState extends State<PianoPage> {
             ),
 
             //Tiempo presionado
-            Expanded(child: Center(child: timeTextField('Tiempo presionado (s)', () {}))),
+            Expanded(
+                child: Center(
+                    child: timeTextField('Tiempo presionado (s)', () {}))),
 
             //Tiempo Delay
             //Tiempo presionado
-            Expanded(child: Center(child: timeTextField('Tiempo delay (s)', () {}))),
+            Expanded(
+                child: Center(child: timeTextField('Tiempo delay (s)', () {}))),
 
             //Salvar
             Expanded(
@@ -195,7 +219,7 @@ class PianoPageState extends State<PianoPage> {
                     height: totalAvailableHeight * 0.08,
                     width: mediaQuery.size.width / 5.5,
                     child: RaisedButton(
-                      onPressed: (){},
+                      onPressed: () {},
                       color: Colors.white,
                       elevation: 7,
                       child: Text('Grabar',
@@ -209,7 +233,7 @@ class PianoPageState extends State<PianoPage> {
                     width: mediaQuery.size.width / 5.5,
                     height: totalAvailableHeight * 0.08,
                     child: RaisedButton(
-                      onPressed: (){},
+                      onPressed: () {},
                       color: Colors.white,
                       elevation: 7,
                       child: Text('Guardar',
@@ -224,7 +248,7 @@ class PianoPageState extends State<PianoPage> {
                     height: totalAvailableHeight * 0.08,
                     width: mediaQuery.size.width / 5.5,
                     child: RaisedButton(
-                      onPressed: (){},
+                      onPressed: () {},
                       color: Colors.white,
                       elevation: 7,
                       child: Text('Guardar todo',
@@ -264,7 +288,9 @@ class PianoPageState extends State<PianoPage> {
               height: totalAvailableHeight * 0.65,
               child: RaisedButton(
                 color: Colors.white,
-                onPressed: (){sendHttpPostRequest(theText);},
+                onPressed: () {
+                  sendHttpPostRequest(theText);
+                },
               ),
             )),
         Positioned(
@@ -288,7 +314,9 @@ class PianoPageState extends State<PianoPage> {
                 height: totalAvailableHeight * 0.4,
                 child: RaisedButton(
                   color: Colors.black,
-                  onPressed:(){sendHttpPostRequest(theText+'s');},
+                  onPressed: () {
+                    sendHttpPostRequest(theText + 's');
+                  },
                 ))),
         Positioned(
             bottom: 5,
@@ -329,7 +357,9 @@ class PianoPageState extends State<PianoPage> {
               height: totalAvailableHeight * 0.65,
               child: RaisedButton(
                 color: Colors.white,
-                onPressed: (){sendHttpPostRequest(theText);},
+                onPressed: () {
+                  sendHttpPostRequest(theText);
+                },
               ),
             )),
         Positioned(
@@ -351,103 +381,183 @@ class PianoPageState extends State<PianoPage> {
       debugPrint(PianoApp.stopwatch.elapsedMilliseconds.toString());
       PianoApp.stopwatch.start();
     }
+    
+    Widget firstOctave(){
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+        pianoButton('C1'),
+        pianoButtonWithSuperKey('D1'),
+        pianoButtonWithSuperKey('E1'),
+        pianoButton('F1'),
+        pianoButtonWithSuperKey('G1'),
+        pianoButtonWithSuperKey('A1'),
+        pianoButtonWithSuperKey('B1'),
+        pianoButton('C2'),
+      ],);
+    }
+
+    Widget secondOctave(){
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          pianoButton('C2'),
+          pianoButtonWithSuperKey('D2'),
+          pianoButtonWithSuperKey('E2'),
+          pianoButton('F2'),
+          pianoButtonWithSuperKey('G2'),
+          pianoButtonWithSuperKey('A2'),
+          pianoButtonWithSuperKey('B2'),
+          pianoButton('C3'),
+                   
+        ],
+      );
+    }
+
+    Widget thirdOctave(){
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          pianoButton('C3'),
+          pianoButtonWithSuperKey('D3'),
+          pianoButtonWithSuperKey('E3'),
+          pianoButton('F3'),
+          pianoButtonWithSuperKey('G3'),
+          pianoButtonWithSuperKey('A3'),
+          pianoButtonWithSuperKey('B3'),
+          pianoButton('C4'),
+        ],
+      );
+    }
+
+    Widget fourthOctave(){
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          pianoButton('C4'),
+          pianoButtonWithSuperKey('D4'),
+          pianoButtonWithSuperKey('E4'),
+          pianoButton('F4'),
+          pianoButtonWithSuperKey('G4'),
+          pianoButtonWithSuperKey('A4'),
+          pianoButtonWithSuperKey('B4'),
+          pianoButton('C5'),
+        ],
+      );
+    }
+
+    Widget fifthOctave(){
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          pianoButton('C5'),
+          pianoButtonWithSuperKey('D5'),
+          pianoButtonWithSuperKey('E5'),
+          pianoButton('F5'),
+          pianoButtonWithSuperKey('G5'),
+          pianoButtonWithSuperKey('A5'),
+          pianoButtonWithSuperKey('B5'),
+          pianoButton('C6'),
+        ],
+      );
+    }
+
+    Widget selectOctave(){
+      switch (octaveOrder){
+        case 1: return firstOctave();
+        case 2: return secondOctave();
+        case 3: return thirdOctave();
+        case 4: return fourthOctave();
+        case 5: return fifthOctave();
+      }
+    }
+
+    Widget recordingBody() {
+      return Column(
+        children: [
+          topBar(),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Padding(
+                padding: EdgeInsets.only(top: 7.0),
+                child: Row(
+                  children: <Widget>[
+                    pianoButton('C1'),
+                    pianoButtonWithSuperKey('D1'),
+                    pianoButtonWithSuperKey('E1'),
+                    pianoButton('F1'),
+                    pianoButtonWithSuperKey('G1'),
+                    pianoButtonWithSuperKey('A1'),
+                    pianoButtonWithSuperKey('B1'),
+                    pianoButton('C2'),
+                    pianoButtonWithSuperKey('D2'),
+                    pianoButtonWithSuperKey('E2'),
+                    pianoButton('F2'),
+                    pianoButtonWithSuperKey('G2'),
+                    pianoButtonWithSuperKey('A2'),
+                    pianoButtonWithSuperKey('B2'),
+                    pianoButton('C3'),
+                    pianoButtonWithSuperKey('D3'),
+                    pianoButtonWithSuperKey('E3'),
+                    pianoButton('F3'),
+                    pianoButtonWithSuperKey('G3'),
+                    pianoButtonWithSuperKey('A3'),
+                    pianoButtonWithSuperKey('B3'),
+                    pianoButton('C4'),
+                    pianoButtonWithSuperKey('D4'),
+                    pianoButtonWithSuperKey('E4'),
+                    pianoButton('F4'),
+                    pianoButtonWithSuperKey('G4'),
+                    pianoButtonWithSuperKey('A4'),
+                    pianoButtonWithSuperKey('B4'),
+                    pianoButton('C5'),
+                    pianoButtonWithSuperKey('D5'),
+                    pianoButtonWithSuperKey('E5'),
+                    pianoButton('F5'),
+                    pianoButtonWithSuperKey('G5'),
+                    pianoButtonWithSuperKey('A5'),
+                    pianoButtonWithSuperKey('B5'),
+                    pianoButton('C6'),
+                  ],
+                )),
+          ),
+        ],
+      );
+    }
+
+    Widget liveBody() {
+      return Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+             IconButton(icon: Icon(Icons.arrow_back),onPressed: (){if(octaveOrder>1)setState(() {
+                octaveOrder--;
+             });},),
+             selectOctave(),
+              IconButton(icon: Icon(Icons.arrow_forward),onPressed: (){if(octaveOrder<5)setState(() {
+                octaveOrder++;
+             });}),
+          ],
+        )
+      );
+    }
+
+    Widget getScaffoldBody() {
+      if (!switchIsOn)
+        return liveBody();
+      else
+        return recordingBody();
+    }
 
     return WillPopScope(
-      onWillPop: () {
-        moveToLastScreen();
-      },
-      child: Scaffold(
+        onWillPop: () {
+          moveToLastScreen();
+        },
+        child: Scaffold(
           backgroundColor: Colors.white,
           appBar: appBar,
-          body: Column(
-            children: [
-              topBar(),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Padding(
-                    padding: EdgeInsets.only(top: 7.0),
-                    child: Row(
-                      children: <Widget>[
-                        pianoButton('C1'),
-                        pianoButtonWithSuperKey('D1'),
-                        pianoButtonWithSuperKey('E1'),
-                        pianoButton('F1'),
-                        pianoButtonWithSuperKey('G1'),
-                        pianoButtonWithSuperKey('A1'),
-                        pianoButtonWithSuperKey('B1'),
-                        pianoButton('C2'),
-                        pianoButtonWithSuperKey('D2'),
-                        pianoButtonWithSuperKey('E2'),
-                        pianoButton('F2'),
-                        pianoButtonWithSuperKey('G2'),
-                        pianoButtonWithSuperKey('A2'),
-                        pianoButtonWithSuperKey('B2'),
-                        pianoButton('C3'),
-                        pianoButtonWithSuperKey('D3'),
-                        pianoButtonWithSuperKey('E3'),
-                        pianoButton('F3'),
-                        pianoButtonWithSuperKey('G3'),
-                        pianoButtonWithSuperKey('A3'),
-                        pianoButtonWithSuperKey('B3'),
-                        pianoButton('C4'),
-                        pianoButtonWithSuperKey('D4'),
-                        pianoButtonWithSuperKey('E4'),
-                        pianoButton('F4'),
-                        pianoButtonWithSuperKey('G4'),
-                        pianoButtonWithSuperKey('A4'),
-                        pianoButtonWithSuperKey('B4'),
-                        pianoButton('C5'),
-                        pianoButtonWithSuperKey('D5'),
-                        pianoButtonWithSuperKey('E5'),
-                        pianoButton('F5'),
-                        pianoButtonWithSuperKey('G5'),
-                        pianoButtonWithSuperKey('A5'),
-                        pianoButtonWithSuperKey('B5'),
-                        pianoButton('C6'),
-
-                        //pianoButton(() {}),
-                      ],
-                      // Expanded(
-                      //     child: Column(
-                      //   //crossAxisAlignment: CrossAxisAlignment.stretch,
-                      //   children: <Widget>[
-                      //     PianoButton(onKeyPress: () {}),
-                      //     PianoButton(onKeyPress: () {}),
-                      //     PianoButtonWithSuperKey(
-                      //         onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      //     PianoButtonWithSuperKey(
-                      //         onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      //     PianoButtonWithSuperKey(
-                      //         onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      //     PianoButton(onKeyPress: () {}),
-                      //     PianoButtonWithSuperKey(
-                      //         onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      //     PianoButtonWithSuperKey(
-                      //         onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      //     PianoButton(onKeyPress: () {}),
-                      //     PianoButtonWithSuperKey(
-                      //         onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      //     PianoButtonWithSuperKey(
-                      //         onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      //     PianoButtonWithSuperKey(
-                      //         onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      //     PianoButton(onKeyPress: () {}),
-                      //     PianoButtonWithSuperKey(
-                      //         onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      //     PianoButtonWithSuperKey(
-                      //         onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      //     PianoButton(onKeyPress: () {}),
-                      //     PianoButtonWithSuperKey(
-                      //         onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      //     PianoButtonWithSuperKey(
-                      //         onMainKeyPress: () {}, onSuperKeyPress: () {}),
-                      //   ],
-                      // ))
-                    )),
-              ),
-            ],
-          )),
-    );
+          body: getScaffoldBody(),
+        ));
   }
 }
 
