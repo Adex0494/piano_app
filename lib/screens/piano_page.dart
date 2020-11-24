@@ -17,6 +17,8 @@ class PianoPageState extends State<PianoPage> {
   String finger = '1';
   bool switchIsOn = false;
   int octaveOrder = 1;
+  String record;
+  String selectedKey='';
   @override
   void initState() {
     super.initState();
@@ -74,7 +76,7 @@ class PianoPageState extends State<PianoPage> {
 
     void sendHttpPostRequest(String keyName) {
       //const url = 'https://pianoapp-f3679.firebaseio.com/keys.json';
-      const url = 'http://192.168.0.11:3000/tecla';
+      const url = 'http://192.168.0.9:3000/key';
       http.post(url,
           body: json.encode({'keyPressed': keyName}),
           headers: {'Content-type': 'application/json'}).then((response) {
@@ -215,21 +217,6 @@ class PianoPageState extends State<PianoPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   Container(
-                    color: Colors.white,
-                    height: totalAvailableHeight * 0.08,
-                    width: mediaQuery.size.width / 5.5,
-                    child: RaisedButton(
-                      onPressed: () {},
-                      color: Colors.white,
-                      elevation: 7,
-                      child: Text('Grabar',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          )),
-                    ),
-                  ),
-                  Container(
                     width: mediaQuery.size.width / 5.5,
                     height: totalAvailableHeight * 0.08,
                     child: RaisedButton(
@@ -275,21 +262,33 @@ class PianoPageState extends State<PianoPage> {
                   boxShadow: [
                     BoxShadow(
                       color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 5,
+                      spreadRadius: selectedKey==theText? 7:5,
                       blurRadius: 7,
                       offset: Offset(0, 3), // changes position of shadow
                     ),
                   ],
-                  border: Border.all(color: Colors.black, width: 1.5),
+                  color: selectedKey==theText && switchIsOn? Colors.orange: Colors.white,
+                  border: Border.all(color: Colors.black, width:selectedKey==theText? 2:1),
                   borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(7),
                       bottomRight: Radius.circular(7))),
               width: mediaQuery.size.width * 0.1, // 200.0,
               height: totalAvailableHeight * 0.65,
-              child: RaisedButton(
-                color: Colors.white,
-                onPressed: () {
-                  sendHttpPostRequest(theText);
+              child: GestureDetector(
+                onTapDown: (_) {
+                  setState(() {
+                    selectedKey=theText;
+                  });
+                    //sendHttpPostRequest(theText+'s1');
+
+                },
+                onTapUp: (_){
+                  if(!switchIsOn)
+                    //sendHttpPostRequest(theText+'s0');
+                    setState(() {
+                      selectedKey='';
+                    });
+                    
                 },
               ),
             )),
@@ -298,26 +297,37 @@ class PianoPageState extends State<PianoPage> {
             left: -mediaQuery.size.width * 0.025,
             child: Container(
                 decoration: BoxDecoration(
+                    color: selectedKey== theText+'s' && switchIsOn ? Colors.orange: Colors.black,
                     boxShadow: [
                       BoxShadow(
                         color: Colors.grey.withOpacity(0.5),
-                        spreadRadius: 2,
-                        blurRadius: 7,
+                        spreadRadius: selectedKey== theText+'s'?4:2,
+                        blurRadius: 3,
                         offset: Offset(0, 3), // changes position of shadow
                       ),
                     ],
-                    border: Border.all(color: Colors.black, width: 1.5),
+                    border: Border.all(color: switchIsOn? Colors.black: Colors.grey, width:selectedKey== theText+'s'? 1:0.5),
                     borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(3),
-                        bottomRight: Radius.circular(3))),
+                        bottomLeft: Radius.circular(5),
+                        bottomRight: Radius.circular(5))),
                 width: mediaQuery.size.width * 0.05,
                 height: totalAvailableHeight * 0.4,
-                child: RaisedButton(
-                  color: Colors.black,
-                  onPressed: () {
-                    sendHttpPostRequest(theText + 's');
-                  },
-                ))),
+                              child: GestureDetector(
+                onTapDown: (_) {
+                  setState(() {
+                    selectedKey=theText+'s';
+                  });
+                  //if(!switchIsOn)
+                    //sendHttpPostRequest(theText+'s1');
+                },
+                onTapUp: (_){
+                  if(!switchIsOn)
+                    setState(() {
+                    selectedKey='';
+                  });
+                    //sendHttpPostRequest(theText+'s0');
+                },
+              ),)),
         Positioned(
             bottom: 5,
             //top: 2.0,
@@ -343,22 +353,32 @@ class PianoPageState extends State<PianoPage> {
                   boxShadow: [
                     BoxShadow(
                       color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 5,
+                      spreadRadius: selectedKey==theText? 7:5,
                       blurRadius: 7,
                       offset: Offset(0, 3), // changes position of shadow
                     ),
                   ],
-                  //color: Colors.white,
-                  border: Border.all(color: Colors.black, width: 1.5),
+                  color: selectedKey==theText && switchIsOn? Colors.orange: Colors.white,
+                  border: Border.all(color: Colors.black, width:selectedKey==theText? 2:1),
                   borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(7),
                       bottomRight: Radius.circular(7))),
               width: mediaQuery.size.width * 0.1, // 200.0,
               height: totalAvailableHeight * 0.65,
-              child: RaisedButton(
-                color: Colors.white,
-                onPressed: () {
-                  sendHttpPostRequest(theText);
+              child: GestureDetector(
+                onTapDown: (_) {
+                  setState(() {
+                    selectedKey=theText;
+                  });
+                  //if(!switchIsOn)
+                    //sendHttpPostRequest(theText+'n1');
+                },
+                onTapUp: (_){
+                  if(!switchIsOn)
+                    setState(() {
+                    selectedKey='';
+                  });
+                    //sendHttpPostRequest(theText+'n0');
                 },
               ),
             )),
