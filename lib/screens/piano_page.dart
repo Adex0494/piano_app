@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'dart:convert';
-
 import '../main.dart';
 import 'package:flutter/services.dart';
+import 'dart:convert';
 import 'package:http/http.dart' as http;
+
+import '../utils/database_helper.dart';
+import '../models/song.dart';
 
 class PianoPage extends StatefulWidget {
   @override
@@ -25,6 +27,7 @@ class PianoPageState extends State<PianoPage> {
   OverlayState overlayState;
   OverlayEntry overlayEntry;
   bool overlayEntryIsOn = false;
+  DatabaseHelper databaseHelper = DatabaseHelper();
 
   @override
   void initState() {
@@ -197,7 +200,7 @@ class PianoPageState extends State<PianoPage> {
                   child: TextFormField(
                     style: subtitleStyle,
                     controller: songName,
-                    keyboardType: TextInputType.number,
+                    //keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                         labelText: '$text',
                         labelStyle: subtitleStyle,
@@ -220,8 +223,25 @@ class PianoPageState extends State<PianoPage> {
                       style: TextStyle(color: Colors.white),
                       //textScaleFactor: 1.5,
                     ),
-                    onPressed: () {
-                      debugPrint(record);
+                    onPressed: () async{
+                      if(songName.text!=null){
+                        Song song = Song(songName.text,record);
+                        int result =await databaseHelper.insertSong(song);
+                        if (result!=0){
+                           _showAlertDialog('Éxito', 'Registro exitoso');
+                           setState(() {
+                              finger ='1';
+                              selectedKey = '';
+                              timePressed.text='';
+                              delay.text = '';
+                           });
+                        }
+                        else{
+                        _showAlertDialog('Error', 'Hubo un error al tratar de registrar');
+                        }
+                      }
+                
+                      //debugPrint(record);
                       //When the Registrar button is pressed...
                       overlayEntry.remove();
                       overlayEntryIsOn = false;

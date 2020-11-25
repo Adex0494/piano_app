@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:piano/models/song.dart';
+import 'package:piano/utils/database_helper.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 import 'play_page.dart';
 import '../main.dart';
@@ -12,6 +16,8 @@ class ReproductionPage extends StatefulWidget{
 
 class ReproductionPageState extends State<ReproductionPage>{
   List<String> songs = List<String>();
+  List<Song> theSongs;
+  DatabaseHelper databaseHelper = DatabaseHelper();
 
   void moveToLastScreen() {
     PianoApp.stopwatch.stop();
@@ -21,9 +27,30 @@ class ReproductionPageState extends State<ReproductionPage>{
 
   initState() {
     super.initState();
-    songs = ['Lose yourself','Ya me enteré','Creo en ti','La Gasolina','Punto y aparte','Pa que se lo goce','Ni fu ni fa','Noviembre sin ti','Aquí estoy',
-    'Sinfonía de Bethoven','The four seasons','Volverte a ver','Te amo'];
+    loadSongs();
   }
+
+  loadSongs()async{
+    List<String> auxSongs = List<String>();
+    theSongs = await databaseHelper.getSongList();
+    for (int i =0;i<theSongs.length;i++){
+      auxSongs.add(theSongs[i].name);
+    }
+    setState(() {
+      this.songs=auxSongs;
+    });
+  }
+  
+      void sendHttpPostRequest(String codification) {
+        debugPrint(codification);
+      //const url = 'https://pianoapp-f3679.firebaseio.com/keys.json';
+      const url = 'http://192.168.0.9:3000/play';
+      http.post(url,
+          body: json.encode({'keyPressed': codification}),
+          headers: {'Content-type': 'application/json'}).then((response) {
+      });
+
+    }
 
   @override
   Widget build(BuildContext context){
@@ -47,7 +74,7 @@ class ReproductionPageState extends State<ReproductionPage>{
     return ListView.builder(
         //shrinkWrap: true,
           itemCount: songs.length,
-          itemBuilder: (BuildContext context, int postition) {
+          itemBuilder: (BuildContext context, int position) {
             return Card(
               color: Colors.white,
               elevation: 5.0,
@@ -60,13 +87,14 @@ class ReproductionPageState extends State<ReproductionPage>{
                   child: Icon(Icons.play_arrow),
                 ),
                 title: Text(
-                  songs[postition],
+                  songs[position],
                   //style: subtitleStyle,
                 ),
                 onTap: () {
-                  navigateToPlayPage(songs[postition]);
+                  sendHttpPostRequest(theSongs[position].codification);
+                  navigateToPlayPage(theSongs[position].codification);
                   //When suscriber is tapped...
-                  //navigateToSubscriberPage(subscriberList[postition]);
+                  //navigateToSubscriberPage(subscriberList[position]);
                 },
               ),
             );

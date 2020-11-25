@@ -1,3 +1,5 @@
+import 'package:piano/models/song.dart';
+
 import '../models/use.dart';
 import '../models/user.dart';
 import 'package:sqflite/sqflite.dart';
@@ -22,6 +24,11 @@ class DatabaseHelper {
   String colUserId = 'userId';
   String colMinutes = 'minutes';
   String colDate = 'date';
+
+  //------------------Song table---------------------
+  String songTable = 'song_table';
+  String colName = 'name';
+  String colCodification = 'codification';
 
   DatabaseHelper._createInstance();
 
@@ -60,13 +67,22 @@ class DatabaseHelper {
         'CREATE TABLE $useTable($colId INTEGER PRIMARY KEY AUTOINCREMENT,'
         '$colUserId INTEGER,$colMinutes INTEGER NOT NULL,$colDate TEXT NOT NULL,'
         'FOREIGN KEY ($colUserId) REFERENCES $userTable ($colId))');
+    await db.execute(
+        'CREATE TABLE $songTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colName TEXT NOT NULL,'
+        '$colCodification TEXT NOT NULL)');
     debugPrint('Database Created');
+  }
+
+    //-------------Insert Song----------------
+  Future<int> insertSong(Song song) async {
+    Database db = await this.database;
+    int result = await db.insert(songTable, song.toMap());
+    return result;
   }
 
   //-------------Insert User----------------
   Future<int> insertUser(User user) async {
     Database db = await this.database;
-    debugPrint('inserting user');
     int result = await db.insert(userTable, user.toMap());
     return result;
   }
@@ -75,6 +91,14 @@ class DatabaseHelper {
   Future<int> insertUse(Use use) async {
     Database db = await this.database;
     int result = await db.insert(useTable, use.toMap());
+    return result;
+  }
+
+//----------------Get all songs map List
+  Future<List<Map<String, dynamic>>> getSongMapList() async {
+    Database db = await this.database;
+    List<Map<String, dynamic>> result =
+        await db.rawQuery('SELECT * FROM $songTable ORDER BY $colId ASC');
     return result;
   }
 
@@ -107,6 +131,18 @@ class DatabaseHelper {
       debugPrint('Returning the null map');
       return null;
     }
+  }
+
+//-----------------Get all songs object List
+
+  Future<List<Song>> getSongList() async {
+    List<Map<String, dynamic>> mapList = await getSongMapList();
+    int count = mapList.length;
+    List<Song> objectList = List<Song>();
+    for (int i = 0; i < count; i++) {
+      objectList.add(Song.toSong(mapList[i]));
+    }
+    return objectList;
   }
 
 //-----------------Get all users object List
