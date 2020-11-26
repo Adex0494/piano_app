@@ -44,9 +44,9 @@ class ReproductionPageState extends State<ReproductionPage>{
       void sendHttpPostRequest(String codification) {
         debugPrint(codification);
       //const url = 'https://pianoapp-f3679.firebaseio.com/keys.json';
-      const url = 'http://192.168.0.9:3000/play';
+      const url = 'http://10.0.0.11:5000/play';
       http.post(url,
-          body: json.encode({'keyPressed': codification}),
+          body: json.encode({'codification': codification}),
           headers: {'Content-type': 'application/json'}).then((response) {
       });
 

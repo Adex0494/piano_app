@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:http/http.dart' as http;
 
 import './screens/add_user.dart';
 import './screens/menu_page.dart';
@@ -15,6 +16,7 @@ void main() {
 
 class PianoApp extends StatelessWidget {
   static Stopwatch stopwatch = Stopwatch();
+  static bool connected = false;
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -68,11 +70,24 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordControler = TextEditingController();
   DatabaseHelper databaseHelper = DatabaseHelper();
-  bool stopWatchWasRunning = false;
+  bool stopWatchWasRunning = true;
   int userId;
+
+
+  void sendHttpPostRequestPing() {
+    //debugPrint(PianoApp.connected.toString());
+    //const url = 'https://pianoapp-f3679.firebaseio.com/keys.json';
+    const url = 'http://10.0.0.11:5000/ping';
+    http.post(url).then((response) {
+      PianoApp.connected = true;
+    }).catchError((handleError){PianoApp.connected =false;});
+  }
 
   @override
   initState() {
+    const oneSec = const Duration(milliseconds: 3000);
+    new Timer.periodic(oneSec, (Timer t) => sendHttpPostRequestPing());
+
     WidgetsBinding.instance.addObserver(this);
     super.initState();
     returnScaffoldBody();

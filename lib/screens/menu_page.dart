@@ -4,6 +4,8 @@ import '../widgets/menu_option.dart';
 import 'piano_page.dart';
 import 'reproduction_page.dart';
 import 'statistics.dart';
+import '../main.dart';
+import 'dart:async';
 
 class MenuPage extends StatefulWidget {
   final int userId;
@@ -17,6 +19,24 @@ class _MenuPageState extends State<MenuPage> {
   final int userId;
   final Function saveTime;
   _MenuPageState(this.userId, this.saveTime);
+
+  bool connected = false;
+
+  void askForConnection(){
+    debugPrint(PianoApp.connected.toString());
+    if (PianoApp.connected != connected)
+      setState(() {
+        connected = PianoApp.connected;
+      });
+  }
+  
+  @override
+  initState() {
+    const oneSec = const Duration(milliseconds: 500);
+    new Timer.periodic(oneSec, (Timer t) => askForConnection());
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -26,7 +46,7 @@ class _MenuPageState extends State<MenuPage> {
         child: Scaffold(
           appBar: AppBar(
             title: Text('Pianist Bot', style: TextStyle(color: Colors.white)),
-            leading: null,
+            leading: Icon(Icons.circle,color: PianoApp.connected? Colors.green: Colors.grey,),
           ),
           body: menuScaffoldBody(),
         ));

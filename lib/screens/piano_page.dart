@@ -19,8 +19,8 @@ class PianoPageState extends State<PianoPage> {
   String finger = '1';
   bool switchIsOn = false;
   int octaveOrder = 1;
-  String record ='';
-  String selectedKey='';
+  String record = '';
+  String selectedKey = '';
   TextEditingController timePressed = TextEditingController();
   TextEditingController delay = TextEditingController();
   TextEditingController songName = TextEditingController();
@@ -29,9 +29,38 @@ class PianoPageState extends State<PianoPage> {
   bool overlayEntryIsOn = false;
   DatabaseHelper databaseHelper = DatabaseHelper();
 
+  void sendHttpPostRequest(String keyName) {
+    //const url = 'https://pianoapp-f3679.firebaseio.com/keys.json';
+    const url = 'http://10.0.0.11:5000/key';
+    http.post(url,
+        body: json.encode({'keyPressed': keyName}),
+        headers: {'Content-type': 'application/json'}).then((response) {});
+  }
+
+  void sendHttpPostRequestLiveMode() {
+    //const url = 'https://pianoapp-f3679.firebaseio.com/keys.json';
+    const url = 'http://10.0.0.11:5000/live';
+    http.post(url).then((response) {});
+  }
+
+  void sendHttpPostRequestRecordMode() {
+    //const url = 'https://pianoapp-f3679.firebaseio.com/keys.json';
+    const url = 'http://10.0.0.11:5000/record';
+    http.post(url).then((response) {});
+    // var client = http.Client();
+    // var url='http://192.168.0.11:3000/switchLed';
+    // client.post(url,body:json.encode({'status': true}),
+    //  headers: {'Content-type':'application/json'}).then(
+    //    (response){
+    //      print('status: true');
+    //    }
+    //  );
+  }
+
   @override
   void initState() {
     super.initState();
+    sendHttpPostRequestLiveMode();
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeRight,
       DeviceOrientation.landscapeLeft,
@@ -78,6 +107,9 @@ class PianoPageState extends State<PianoPage> {
           onChanged: (value) {
             setState(() {
               switchIsOn = value;
+              if (!switchIsOn)
+                sendHttpPostRequestLiveMode();
+              else sendHttpPostRequestRecordMode();
             });
           },
         )
@@ -87,26 +119,8 @@ class PianoPageState extends State<PianoPage> {
         appBar.preferredSize.height -
         mediaQuery.padding.top;
 
-    void sendHttpPostRequest(String keyName) {
-      //const url = 'https://pianoapp-f3679.firebaseio.com/keys.json';
-      const url = 'http://192.168.0.9:3000/key';
-      http.post(url,
-          body: json.encode({'keyPressed': keyName}),
-          headers: {'Content-type': 'application/json'}).then((response) {
-      });
-
-      // var client = http.Client();
-      // var url='http://192.168.0.11:3000/switchLed';
-      // client.post(url,body:json.encode({'status': true}),
-      //  headers: {'Content-type':'application/json'}).then(
-      //    (response){
-      //      print('status: true');
-      //    }
-      //  );
-    }
-
-    String secondsToMiliseconds(double seconds){
-      return (seconds*1000).toInt().toString();
+    String secondsToMiliseconds(double seconds) {
+      return (seconds * 1000).toInt().toString();
     }
 
     Widget fingerRadio(String text) {
@@ -131,7 +145,8 @@ class PianoPageState extends State<PianoPage> {
       ));
     }
 
-    Widget timeTextField(String theText, Function function, TextEditingController theController) {
+    Widget timeTextField(String theText, Function function,
+        TextEditingController theController) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -178,113 +193,113 @@ class PianoPageState extends State<PianoPage> {
       );
     }
 
-  void _showAlertDialog(String title, String message) {
-    AlertDialog alertDialog = AlertDialog(
-      title: Text(title),
-      content: Text(message),
-    );
-    showDialog(context: context, builder: (_) => alertDialog);
-  }
+    void _showAlertDialog(String title, String message) {
+      AlertDialog alertDialog = AlertDialog(
+        title: Text(title),
+        content: Text(message),
+      );
+      showDialog(context: context, builder: (_) => alertDialog);
+    }
 
     Widget overlayWidget(String text) {
-    TextStyle subtitleStyle = Theme.of(context).textTheme.subtitle;
-    return Card(
-      elevation: 15.0,
-      child: Column(
-        children: <Widget>[
-          SizedBox(
-              width: 225,
-              height: 75,
-              child: Padding(
-                  padding: EdgeInsets.all(7.0),
-                  child: TextFormField(
-                    style: subtitleStyle,
-                    controller: songName,
-                    //keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                        labelText: '$text',
-                        labelStyle: subtitleStyle,
-                        enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.black),
-                            borderRadius: BorderRadius.circular(5.0))),
-                    onChanged: (value) {
-                      //When Name Text has changed...
-                    },
-                  ))),
-          Row(
-            children: <Widget>[
-              Padding(
-                  padding: EdgeInsets.all(3.0),
-                  child: RaisedButton(
-                    elevation: 3.0,
-                    color: Colors.black,
-                    child: Text(
-                      'Registrar',
-                      style: TextStyle(color: Colors.white),
-                      //textScaleFactor: 1.5,
-                    ),
-                    onPressed: () async{
-                      if(songName.text!=null){
-                        Song song = Song(songName.text,record);
-                        int result =await databaseHelper.insertSong(song);
-                        if (result!=0){
-                           _showAlertDialog('Éxito', 'Registro exitoso');
-                           setState(() {
-                              finger ='1';
+      TextStyle subtitleStyle = Theme.of(context).textTheme.subtitle;
+      return Card(
+        elevation: 15.0,
+        child: Column(
+          children: <Widget>[
+            SizedBox(
+                width: 225,
+                height: 75,
+                child: Padding(
+                    padding: EdgeInsets.all(7.0),
+                    child: TextFormField(
+                      style: subtitleStyle,
+                      controller: songName,
+                      //keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                          labelText: '$text',
+                          labelStyle: subtitleStyle,
+                          enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.black),
+                              borderRadius: BorderRadius.circular(5.0))),
+                      onChanged: (value) {
+                        //When Name Text has changed...
+                      },
+                    ))),
+            Row(
+              children: <Widget>[
+                Padding(
+                    padding: EdgeInsets.all(3.0),
+                    child: RaisedButton(
+                      elevation: 3.0,
+                      color: Colors.black,
+                      child: Text(
+                        'Registrar',
+                        style: TextStyle(color: Colors.white),
+                        //textScaleFactor: 1.5,
+                      ),
+                      onPressed: () async {
+                        if (songName.text != null) {
+                          Song song = Song(songName.text, record);
+                          int result = await databaseHelper.insertSong(song);
+                          if (result != 0) {
+                            _showAlertDialog('Éxito', 'Registro exitoso');
+                            setState(() {
+                              finger = '1';
                               selectedKey = '';
-                              timePressed.text='';
+                              timePressed.text = '';
                               delay.text = '';
-                           });
+                            });
+                          } else {
+                            _showAlertDialog('Error',
+                                'Hubo un error al tratar de registrar');
+                          }
                         }
-                        else{
-                        _showAlertDialog('Error', 'Hubo un error al tratar de registrar');
-                        }
-                      }
-                
-                      //debugPrint(record);
-                      //When the Registrar button is pressed...
-                      overlayEntry.remove();
-                      overlayEntryIsOn = false;
-                    },
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5.0)),
-                  )),
-              Padding(
-                  padding: EdgeInsets.all(3.0),
-                  child: RaisedButton(
-                    elevation: 3.0,
-                    color: Colors.grey,
-                    child: Text(
-                      'Cancelar',
-                      style: TextStyle(color: Colors.white),
-                      //textScaleFactor: 1.5,
-                    ),
-                    onPressed: () {
-                      //When the Cancelar button is pressed...
-                      overlayEntry.remove();
-                      overlayEntryIsOn = false;
-                    },
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5.0)),
-                  ))
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+
+                        //debugPrint(record);
+                        //When the Registrar button is pressed...
+                        overlayEntry.remove();
+                        overlayEntryIsOn = false;
+                      },
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5.0)),
+                    )),
+                Padding(
+                    padding: EdgeInsets.all(3.0),
+                    child: RaisedButton(
+                      elevation: 3.0,
+                      color: Colors.grey,
+                      child: Text(
+                        'Cancelar',
+                        style: TextStyle(color: Colors.white),
+                        //textScaleFactor: 1.5,
+                      ),
+                      onPressed: () {
+                        //When the Cancelar button is pressed...
+                        overlayEntry.remove();
+                        overlayEntryIsOn = false;
+                      },
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5.0)),
+                    ))
+              ],
+            ),
+          ],
+        ),
+      );
+    }
 
     showOverlay(BuildContext context) {
-    songName.text = '';
-    overlayState = Overlay.of(context);
-    overlayEntry = OverlayEntry(
-        builder: (context) => Positioned(
-            top: (MediaQuery.of(context).size.height / 5.0),
-            right: (MediaQuery.of(context).size.width / 2.0) - 112.5,
-            child: overlayWidget('Nombre de la canción')));
-    overlayState.insert(overlayEntry);
-    overlayEntryIsOn = true;
-  }
+      songName.text = '';
+      overlayState = Overlay.of(context);
+      overlayEntry = OverlayEntry(
+          builder: (context) => Positioned(
+              top: (MediaQuery.of(context).size.height / 5.0),
+              right: (MediaQuery.of(context).size.width / 2.0) - 112.5,
+              child: overlayWidget('Nombre de la canción')));
+      overlayState.insert(overlayEntry);
+      overlayEntryIsOn = true;
+    }
 
     Widget topBar() {
       return Container(
@@ -330,12 +345,14 @@ class PianoPageState extends State<PianoPage> {
             //Tiempo presionado
             Expanded(
                 child: Center(
-                    child: timeTextField('Tiempo presionado (s)', () {}, timePressed))),
+                    child: timeTextField(
+                        'Tiempo presionado (s)', () {}, timePressed))),
 
             //Tiempo Delay
             //Tiempo presionado
             Expanded(
-                child: Center(child: timeTextField('Tiempo delay (s)', () {},delay))),
+                child: Center(
+                    child: timeTextField('Tiempo delay (s)', () {}, delay))),
 
             //Salvar
             Expanded(
@@ -347,18 +364,25 @@ class PianoPageState extends State<PianoPage> {
                     height: totalAvailableHeight * 0.08,
                     child: RaisedButton(
                       onPressed: () {
-                        if (!(timePressed.text=='' || delay.text=='' || selectedKey==''))
-                        {
+                        if (!(timePressed.text == '' ||
+                            delay.text == '' ||
+                            selectedKey == '')) {
                           debugPrint('klk');
-                          record = record + selectedKey + finger + secondsToMiliseconds(double.parse(timePressed.text)) + secondsToMiliseconds(double.parse(delay.text)); 
+                          record = record +
+                              selectedKey +
+                              finger +
+                              secondsToMiliseconds(
+                                  double.parse(timePressed.text)) +
+                              secondsToMiliseconds(double.parse(delay.text));
                           setState(() {
-                            finger ='1';
+                            finger = '1';
                             selectedKey = '';
-                            timePressed.text='';
+                            timePressed.text = '';
                             delay.text = '';
                           });
-                        }
-                        else _showAlertDialog('Error', 'Asegúrese de usar números válidos y de presionar la tecla deseada');
+                        } else
+                          _showAlertDialog('Error',
+                              'Asegúrese de usar números válidos y de presionar la tecla deseada');
                       },
                       color: Colors.white,
                       elevation: 7,
@@ -375,7 +399,7 @@ class PianoPageState extends State<PianoPage> {
                     width: mediaQuery.size.width / 5.5,
                     child: RaisedButton(
                       onPressed: () {
-                       showOverlay(context);
+                        showOverlay(context);
                       },
                       color: Colors.white,
                       elevation: 7,
@@ -403,13 +427,17 @@ class PianoPageState extends State<PianoPage> {
                   boxShadow: [
                     BoxShadow(
                       color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: selectedKey==theText+'n'? 7:5,
+                      spreadRadius: selectedKey == theText + 'n' ? 7 : 5,
                       blurRadius: 7,
                       offset: Offset(0, 3), // changes position of shadow
                     ),
                   ],
-                  color: selectedKey==theText+'n' && switchIsOn? Colors.orange: Colors.white,
-                  border: Border.all(color: Colors.black, width:selectedKey==theText+'n'? 2:1),
+                  color: selectedKey == theText + 'n' && switchIsOn
+                      ? Colors.orange
+                      : Colors.white,
+                  border: Border.all(
+                      color: Colors.black,
+                      width: selectedKey == theText + 'n' ? 2 : 1),
                   borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(7),
                       bottomRight: Radius.circular(7))),
@@ -418,18 +446,17 @@ class PianoPageState extends State<PianoPage> {
               child: GestureDetector(
                 onTapDown: (_) {
                   setState(() {
-                    selectedKey=theText+'n';
+                    selectedKey = theText + 'n';
                   });
-                    //sendHttpPostRequest(theText+'s1');
-
+                  if (!switchIsOn)
+                    sendHttpPostRequest(theText+'n1');
                 },
-                onTapUp: (_){
-                  if(!switchIsOn)
-                    //sendHttpPostRequest(theText+'s0');
+                onTapUp: (_) {
+                  if (!switchIsOn)
+                     sendHttpPostRequest(theText+'n0');
                     setState(() {
-                      selectedKey='';
+                      selectedKey = '';
                     });
-                    
                 },
               ),
             )),
@@ -437,38 +464,44 @@ class PianoPageState extends State<PianoPage> {
             top: 2.0,
             left: -mediaQuery.size.width * 0.025,
             child: Container(
-                decoration: BoxDecoration(
-                    color: selectedKey== theText+'s' && switchIsOn ? Colors.orange: Colors.black,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.5),
-                        spreadRadius: selectedKey== theText+'s'?4:2,
-                        blurRadius: 3,
-                        offset: Offset(0, 3), // changes position of shadow
-                      ),
-                    ],
-                    border: Border.all(color: switchIsOn? Colors.black: Colors.grey, width:selectedKey== theText+'s'? 1:0.5),
-                    borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(5),
-                        bottomRight: Radius.circular(5))),
-                width: mediaQuery.size.width * 0.05,
-                height: totalAvailableHeight * 0.4,
-                              child: GestureDetector(
+              decoration: BoxDecoration(
+                  color: selectedKey == theText + 's' && switchIsOn
+                      ? Colors.orange
+                      : Colors.black,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: selectedKey == theText + 's' ? 4 : 2,
+                      blurRadius: 3,
+                      offset: Offset(0, 3), // changes position of shadow
+                    ),
+                  ],
+                  border: Border.all(
+                      color: switchIsOn ? Colors.black : Colors.grey,
+                      width: selectedKey == theText + 's' ? 1 : 0.5),
+                  borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(5),
+                      bottomRight: Radius.circular(5))),
+              width: mediaQuery.size.width * 0.05,
+              height: totalAvailableHeight * 0.4,
+              child: GestureDetector(
                 onTapDown: (_) {
                   setState(() {
-                    selectedKey=theText+'s';
+                    selectedKey = theText + 's';
                   });
-                  //if(!switchIsOn)
-                    //sendHttpPostRequest(theText+'s1');
-                },
-                onTapUp: (_){
                   if(!switchIsOn)
-                    setState(() {
-                    selectedKey='';
-                  });
-                    //sendHttpPostRequest(theText+'s0');
+                  sendHttpPostRequest(theText+'s1');
                 },
-              ),)),
+                onTapUp: (_) {
+                  if (!switchIsOn)
+                    setState(() {
+                      selectedKey = '';
+                      sendHttpPostRequest(theText+'s0');
+                    });
+                  
+                },
+              ),
+            )),
         Positioned(
             bottom: 5,
             //top: 2.0,
@@ -494,13 +527,17 @@ class PianoPageState extends State<PianoPage> {
                   boxShadow: [
                     BoxShadow(
                       color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: selectedKey==theText+'n'? 7:5,
+                      spreadRadius: selectedKey == theText + 'n' ? 7 : 5,
                       blurRadius: 7,
                       offset: Offset(0, 3), // changes position of shadow
                     ),
                   ],
-                  color: selectedKey==theText+'n' && switchIsOn? Colors.orange: Colors.white,
-                  border: Border.all(color: Colors.black, width:selectedKey==theText+'n'? 2:1),
+                  color: selectedKey == theText + 'n' && switchIsOn
+                      ? Colors.orange
+                      : Colors.white,
+                  border: Border.all(
+                      color: Colors.black,
+                      width: selectedKey == theText + 'n' ? 2 : 1),
                   borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(7),
                       bottomRight: Radius.circular(7))),
@@ -509,17 +546,19 @@ class PianoPageState extends State<PianoPage> {
               child: GestureDetector(
                 onTapDown: (_) {
                   setState(() {
-                    selectedKey=theText+'n';
+                    selectedKey = theText + 'n';
                   });
-                  //if(!switchIsOn)
-                    //sendHttpPostRequest(theText+'n1');
-                },
-                onTapUp: (_){
                   if(!switchIsOn)
+                    sendHttpPostRequest(theText+'n1');
+                },
+                onTapUp: (_) {
+                  if (!switchIsOn)
+                  {
                     setState(() {
-                    selectedKey='';
-                  });
-                    //sendHttpPostRequest(theText+'n0');
+                      selectedKey = '';
+                    });
+                  sendHttpPostRequest(theText+'n0');
+                }
                 },
               ),
             )),
@@ -542,23 +581,24 @@ class PianoPageState extends State<PianoPage> {
       debugPrint(PianoApp.stopwatch.elapsedMilliseconds.toString());
       PianoApp.stopwatch.start();
     }
-    
-    Widget firstOctave(){
+
+    Widget firstOctave() {
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-        pianoButton('C1'),
-        pianoButtonWithSuperKey('D1'),
-        pianoButtonWithSuperKey('E1'),
-        pianoButton('F1'),
-        pianoButtonWithSuperKey('G1'),
-        pianoButtonWithSuperKey('A1'),
-        pianoButtonWithSuperKey('B1'),
-        pianoButton('C2'),
-      ],);
+          pianoButton('C1'),
+          pianoButtonWithSuperKey('D1'),
+          pianoButtonWithSuperKey('E1'),
+          pianoButton('F1'),
+          pianoButtonWithSuperKey('G1'),
+          pianoButtonWithSuperKey('A1'),
+          pianoButtonWithSuperKey('B1'),
+          pianoButton('C2'),
+        ],
+      );
     }
 
-    Widget secondOctave(){
+    Widget secondOctave() {
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -570,12 +610,11 @@ class PianoPageState extends State<PianoPage> {
           pianoButtonWithSuperKey('A2'),
           pianoButtonWithSuperKey('B2'),
           pianoButton('C3'),
-                   
         ],
       );
     }
 
-    Widget thirdOctave(){
+    Widget thirdOctave() {
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -591,7 +630,7 @@ class PianoPageState extends State<PianoPage> {
       );
     }
 
-    Widget fourthOctave(){
+    Widget fourthOctave() {
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -607,7 +646,7 @@ class PianoPageState extends State<PianoPage> {
       );
     }
 
-    Widget fifthOctave(){
+    Widget fifthOctave() {
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -623,13 +662,18 @@ class PianoPageState extends State<PianoPage> {
       );
     }
 
-    Widget selectOctave(){
-      switch (octaveOrder){
-        case 1: return firstOctave();
-        case 2: return secondOctave();
-        case 3: return thirdOctave();
-        case 4: return fourthOctave();
-        case 5: return fifthOctave();
+    Widget selectOctave() {
+      switch (octaveOrder) {
+        case 1:
+          return firstOctave();
+        case 2:
+          return secondOctave();
+        case 3:
+          return thirdOctave();
+        case 4:
+          return fourthOctave();
+        case 5:
+          return fifthOctave();
       }
     }
 
@@ -688,26 +732,37 @@ class PianoPageState extends State<PianoPage> {
 
     Widget liveBody() {
       return Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-             IconButton(icon: Icon(Icons.arrow_back),onPressed: (){if(octaveOrder>1)setState(() {
-                octaveOrder--;
-             });},),
-             selectOctave(),
-              IconButton(icon: Icon(Icons.arrow_forward),onPressed: (){if(octaveOrder<5)setState(() {
-                octaveOrder++;
-             });}),
-          ],
-        )
-      );
+          child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              if (octaveOrder > 1)
+                setState(() {
+                  octaveOrder--;
+                });
+            },
+          ),
+          selectOctave(),
+          IconButton(
+              icon: Icon(Icons.arrow_forward),
+              onPressed: () {
+                if (octaveOrder < 5)
+                  setState(() {
+                    octaveOrder++;
+                  });
+              }),
+        ],
+      ));
     }
 
     Widget getScaffoldBody() {
-      if (!switchIsOn)
+      if (!switchIsOn) {
         return liveBody();
-      else
+      } else {
         return recordingBody();
+      }
     }
 
     return WillPopScope(
