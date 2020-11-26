@@ -23,7 +23,7 @@ class _MenuPageState extends State<MenuPage> {
   bool connected = false;
 
   void askForConnection(){
-    debugPrint(PianoApp.connected.toString());
+    //debugPrint(PianoApp.connected.toString());
     if (PianoApp.connected != connected)
       setState(() {
         connected = PianoApp.connected;

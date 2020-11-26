@@ -31,10 +31,17 @@ class ReproductionPageState extends State<ReproductionPage>{
   }
 
   loadSongs()async{
+    List<Song> songsByDefect = [Song('La Estrellita','La Estrellita'),Song('Feliz Navidad','Feliz Navidad')];
     List<String> auxSongs = List<String>();
-    theSongs = await databaseHelper.getSongList();
-    for (int i =0;i<theSongs.length;i++){
-      auxSongs.add(theSongs[i].name);
+
+    for(int i=0;i<songsByDefect.length;i++)
+      auxSongs.add(songsByDefect[i].name);
+
+    theSongs = songsByDefect;
+    List<Song> auxTheSongs = await databaseHelper.getSongList();
+    for (int i =0;i<auxTheSongs.length;i++){
+      auxSongs.add(auxTheSongs[i].name);
+      theSongs.add(auxTheSongs[i]);
     }
     setState(() {
       this.songs=auxSongs;
@@ -44,7 +51,7 @@ class ReproductionPageState extends State<ReproductionPage>{
       void sendHttpPostRequest(String codification) {
         debugPrint(codification);
       //const url = 'https://pianoapp-f3679.firebaseio.com/keys.json';
-      const url = 'http://10.0.0.11:5000/play';
+      String url = PianoApp.urlBase + '/play';
       http.post(url,
           body: json.encode({'codification': codification}),
           headers: {'Content-type': 'application/json'}).then((response) {
@@ -92,7 +99,7 @@ class ReproductionPageState extends State<ReproductionPage>{
                 ),
                 onTap: () {
                   sendHttpPostRequest(theSongs[position].codification);
-                  navigateToPlayPage(theSongs[position].codification);
+                  navigateToPlayPage(theSongs[position].name);
                   //When suscriber is tapped...
                   //navigateToSubscriberPage(subscriberList[position]);
                 },

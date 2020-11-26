@@ -17,6 +17,7 @@ void main() {
 class PianoApp extends StatelessWidget {
   static Stopwatch stopwatch = Stopwatch();
   static bool connected = false;
+  static String urlBase = 'http://192.168.0.5:5000';
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -77,7 +78,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void sendHttpPostRequestPing() {
     //debugPrint(PianoApp.connected.toString());
     //const url = 'https://pianoapp-f3679.firebaseio.com/keys.json';
-    const url = 'http://10.0.0.11:5000/ping';
+    String url = PianoApp.urlBase + '/ping';
     http.post(url).then((response) {
       PianoApp.connected = true;
     }).catchError((handleError){PianoApp.connected =false;});

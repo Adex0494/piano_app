@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import '../main.dart';
+
 class PlayPage extends StatefulWidget{
   final String songName;
   PlayPage(this.songName);
@@ -36,7 +38,7 @@ class PlayPageState extends State<PlayPage>{
 
     void sendHttpPostRequest() {
       //const url = 'https://pianoapp-f3679.firebaseio.com/keys.json';
-      const url = 'http://10.0.0.11:5000/stopPlay';
+      String url = PianoApp.urlBase + '/stopPlay';
       http.post(url).then((response) {
       });
 
@@ -53,33 +55,33 @@ class PlayPageState extends State<PlayPage>{
               child: Image.asset('images/pianoPlay.jpg'),
             ),
             Text(songName,style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
-            Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                      width: 50,
-                      height: 50,
-                      child: Image.asset('images/circle-cropped-1.png')),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                      width: 50,
-                      height: 50,
-                      child: Image.asset('images/circle-cropped.png')),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                        width: 50,
-                        height: 50,
-                        child: Image.asset('images/circle-cropped-2.png')),
-                ),
+            // Row(
+            //     mainAxisAlignment: MainAxisAlignment.center,
+            //     children: <Widget>[
+            //     Padding(
+            //       padding: const EdgeInsets.all(8.0),
+            //       child: Container(
+            //           width: 50,
+            //           height: 50,
+            //           child: Image.asset('images/circle-cropped-1.png')),
+            //     ),
+            //     Padding(
+            //       padding: const EdgeInsets.all(8.0),
+            //       child: Container(
+            //           width: 50,
+            //           height: 50,
+            //           child: Image.asset('images/circle-cropped.png')),
+            //     ),
+            //     Padding(
+            //       padding: const EdgeInsets.all(8.0),
+            //       child: Container(
+            //             width: 50,
+            //             height: 50,
+            //             child: Image.asset('images/circle-cropped-2.png')),
+            //     ),
 
-            ]
-            )
+            // ]
+            // )
 
           ]
         )

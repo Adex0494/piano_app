@@ -21,6 +21,7 @@ class PianoPageState extends State<PianoPage> {
   int octaveOrder = 1;
   String record = '';
   String selectedKey = '';
+  List<String> selectedKeys = List<String>();
   TextEditingController timePressed = TextEditingController();
   TextEditingController delay = TextEditingController();
   TextEditingController songName = TextEditingController();
@@ -31,7 +32,7 @@ class PianoPageState extends State<PianoPage> {
 
   void sendHttpPostRequest(String keyName) {
     //const url = 'https://pianoapp-f3679.firebaseio.com/keys.json';
-    const url = 'http://10.0.0.11:5000/key';
+    String url = PianoApp.urlBase + '/key';
     http.post(url,
         body: json.encode({'keyPressed': keyName}),
         headers: {'Content-type': 'application/json'}).then((response) {});
@@ -39,13 +40,25 @@ class PianoPageState extends State<PianoPage> {
 
   void sendHttpPostRequestLiveMode() {
     //const url = 'https://pianoapp-f3679.firebaseio.com/keys.json';
-    const url = 'http://10.0.0.11:5000/live';
+    String url = PianoApp.urlBase + '/live';
+    http.post(url).then((response) {});
+  }
+
+  void sendHttpPostRequestNextOctave() {
+    //const url = 'https://pianoapp-f3679.firebaseio.com/keys.json';
+    String url = PianoApp.urlBase + '/nextOctave';
+    http.post(url).then((response) {});
+  }
+
+  void sendHttpPostRequestBackOctave() {
+    //const url = 'https://pianoapp-f3679.firebaseio.com/keys.json';
+    String url = PianoApp.urlBase + '/backOctave';
     http.post(url).then((response) {});
   }
 
   void sendHttpPostRequestRecordMode() {
     //const url = 'https://pianoapp-f3679.firebaseio.com/keys.json';
-    const url = 'http://10.0.0.11:5000/record';
+    String url = PianoApp.urlBase + '/record';
     http.post(url).then((response) {});
     // var client = http.Client();
     // var url='http://192.168.0.11:3000/switchLed';
@@ -109,7 +122,8 @@ class PianoPageState extends State<PianoPage> {
               switchIsOn = value;
               if (!switchIsOn)
                 sendHttpPostRequestLiveMode();
-              else sendHttpPostRequestRecordMode();
+              else
+                sendHttpPostRequestRecordMode();
             });
           },
         )
@@ -420,161 +434,225 @@ class PianoPageState extends State<PianoPage> {
 
     Widget pianoButtonWithSuperKey(String theText) {
       return Stack(overflow: Overflow.visible, children: <Widget>[
-        Padding(
-            padding: const EdgeInsets.only(bottom: 0.5, top: 0.5),
-            child: Container(
-              decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: selectedKey == theText + 'n' ? 7 : 5,
-                      blurRadius: 7,
-                      offset: Offset(0, 3), // changes position of shadow
-                    ),
-                  ],
-                  color: selectedKey == theText + 'n' && switchIsOn
-                      ? Colors.orange
-                      : Colors.white,
-                  border: Border.all(
-                      color: Colors.black,
-                      width: selectedKey == theText + 'n' ? 2 : 1),
-                  borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(7),
-                      bottomRight: Radius.circular(7))),
-              width: mediaQuery.size.width * 0.1, // 200.0,
-              height: totalAvailableHeight * 0.65,
-              child: GestureDetector(
-                onTapDown: (_) {
-                  setState(() {
-                    selectedKey = theText + 'n';
-                  });
-                  if (!switchIsOn)
-                    sendHttpPostRequest(theText+'n1');
-                },
-                onTapUp: (_) {
-                  if (!switchIsOn)
-                     sendHttpPostRequest(theText+'n0');
-                    setState(() {
-                      selectedKey = '';
-                    });
-                },
-              ),
-            )),
+        GestureDetector(
+          onTapDown: (_) {
+            debugPrint('down');
+            setState(() {
+              selectedKey = theText + 'n';
+              selectedKeys.add(theText + 'n');
+            });
+            if (!switchIsOn) sendHttpPostRequest(theText + 'n1');
+          },
+          onTapUp: (_) {
+            debugPrint('up');
+            setState(() {
+              selectedKeys.remove(theText + 'n');
+            });
+            if (!switchIsOn) {
+              sendHttpPostRequest(theText + 'n0');
+            }
+          },
+          onTapCancel: () {
+            debugPrint('cancel');
+            setState(() {
+              selectedKeys.remove(theText + 'n');
+            });
+            if (!switchIsOn) {
+              sendHttpPostRequest(theText + 'n0');
+            }
+          },
+          child: Padding(
+              padding: const EdgeInsets.only(bottom: 0.5, top: 0.5),
+              child: Container(
+                decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius:
+                            selectedKeys.contains(theText + 'n') ? 7 : 5,
+                        blurRadius: 7,
+                        offset: Offset(0, 3), // changes position of shadow
+                      ),
+                    ],
+                    color: selectedKey == theText + 'n' && switchIsOn
+                        ? Colors.orange
+                        : Colors.white,
+                    border: Border.all(
+                        color: Colors.black,
+                        width: selectedKeys.contains(theText + 'n') ? 2 : 1),
+                    borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(7),
+                        bottomRight: Radius.circular(7))),
+                width: mediaQuery.size.width * 0.1, // 200.0,
+                height: totalAvailableHeight * 0.65,
+              )),
+        ),
         Positioned(
             top: 2.0,
             left: -mediaQuery.size.width * 0.025,
-            child: Container(
-              decoration: BoxDecoration(
-                  color: selectedKey == theText + 's' && switchIsOn
-                      ? Colors.orange
-                      : Colors.black,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: selectedKey == theText + 's' ? 4 : 2,
-                      blurRadius: 3,
-                      offset: Offset(0, 3), // changes position of shadow
-                    ),
-                  ],
-                  border: Border.all(
-                      color: switchIsOn ? Colors.black : Colors.grey,
-                      width: selectedKey == theText + 's' ? 1 : 0.5),
-                  borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(5),
-                      bottomRight: Radius.circular(5))),
-              width: mediaQuery.size.width * 0.05,
-              height: totalAvailableHeight * 0.4,
-              child: GestureDetector(
-                onTapDown: (_) {
-                  setState(() {
-                    selectedKey = theText + 's';
-                  });
-                  if(!switchIsOn)
-                  sendHttpPostRequest(theText+'s1');
-                },
-                onTapUp: (_) {
-                  if (!switchIsOn)
-                    setState(() {
-                      selectedKey = '';
-                      sendHttpPostRequest(theText+'s0');
-                    });
-                  
-                },
+            child: GestureDetector(
+              onTapDown: (_) {
+                debugPrint('down');
+                setState(() {
+                  selectedKey = theText + 's';
+                  selectedKeys.add(theText + 's');
+                });
+                if (!switchIsOn) sendHttpPostRequest(theText + 's1');
+              },
+              onTapUp: (_) {
+                debugPrint('up');
+                setState(() {
+                  selectedKeys.remove(theText + 's');
+                });
+                if (!switchIsOn) {
+                  sendHttpPostRequest(theText + 's0');
+                }
+              },
+              onTapCancel: () {
+                debugPrint('cancel');
+                setState(() {
+                  selectedKeys.remove(theText + 's');
+                });
+                if (!switchIsOn) {
+                  sendHttpPostRequest(theText + 's0');
+                }
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                    color: selectedKey == theText + 's' && switchIsOn
+                        ? Colors.orange
+                        : Colors.black,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius:
+                            selectedKeys.contains(theText + 's') ? 4 : 2,
+                        blurRadius: 3,
+                        offset: Offset(0, 3), // changes position of shadow
+                      ),
+                    ],
+                    border: Border.all(
+                        color: switchIsOn ? Colors.black : Colors.grey,
+                        width: selectedKeys.contains(theText + 's') ? 1 : 0.5),
+                    borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(5),
+                        bottomRight: Radius.circular(5))),
+                width: mediaQuery.size.width * 0.05,
+                height: totalAvailableHeight * 0.4,
               ),
             )),
         Positioned(
             bottom: 5,
             //top: 2.0,
             left: mediaQuery.size.width * 0.038,
-            child: Container(
-                //alignment: Alignment.center,
-                //width: mediaQuery.size.width * 0.05,
-                //height: totalAvailableHeight * 0.5,
-                child: Text(
-              theText,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            )))
+            child: GestureDetector(
+              onTapDown: (_) {
+                debugPrint('down');
+                setState(() {
+                  selectedKey = theText + 'n';
+                  selectedKeys.add(theText + 'n');
+                });
+                if (!switchIsOn) sendHttpPostRequest(theText + 'n1');
+              },
+              onTapUp: (_) {
+                debugPrint('up');
+                setState(() {
+                  selectedKeys.remove(theText + 'n');
+                });
+                if (!switchIsOn) {
+                  sendHttpPostRequest(theText + 'n0');
+                }
+              },
+              onTapCancel: () {
+                debugPrint('cancel');
+                setState(() {
+                  selectedKeys.remove(theText + 'n');
+                });
+                if (!switchIsOn) {
+                  sendHttpPostRequest(theText + 'n0');
+                }
+              },
+              child: Container(
+                  //alignment: Alignment.center,
+                  //width: mediaQuery.size.width * 0.05,
+                  //height: totalAvailableHeight * 0.5,
+                  child: Text(
+                theText,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              )),
+            ))
       ]);
     }
 
     Widget pianoButton(String theText) {
-      return Stack(overflow: Overflow.visible, children: <Widget>[
-        Padding(
-            padding: const EdgeInsets.only(bottom: 0.5, top: 0.5),
-            child: Container(
-              //color: Colors.white,
-              decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: selectedKey == theText + 'n' ? 7 : 5,
-                      blurRadius: 7,
-                      offset: Offset(0, 3), // changes position of shadow
-                    ),
-                  ],
-                  color: selectedKey == theText + 'n' && switchIsOn
-                      ? Colors.orange
-                      : Colors.white,
-                  border: Border.all(
-                      color: Colors.black,
-                      width: selectedKey == theText + 'n' ? 2 : 1),
-                  borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(7),
-                      bottomRight: Radius.circular(7))),
-              width: mediaQuery.size.width * 0.1, // 200.0,
-              height: totalAvailableHeight * 0.65,
-              child: GestureDetector(
-                onTapDown: (_) {
-                  setState(() {
-                    selectedKey = theText + 'n';
-                  });
-                  if(!switchIsOn)
-                    sendHttpPostRequest(theText+'n1');
-                },
-                onTapUp: (_) {
-                  if (!switchIsOn)
-                  {
-                    setState(() {
-                      selectedKey = '';
-                    });
-                  sendHttpPostRequest(theText+'n0');
-                }
-                },
-              ),
-            )),
-        Positioned(
-            bottom: 5,
-            //top: 2.0,
-            left: mediaQuery.size.width * 0.038,
-            child: Container(
-                //alignment: Alignment.center,
-                //width: mediaQuery.size.width * 0.05,
-                //height: totalAvailableHeight * 0.5,
-                child: Text(
-              theText,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            )))
-      ]);
+      return GestureDetector(
+        onTapDown: (_) {
+          debugPrint('down');
+          setState(() {
+            selectedKey = theText + 'n';
+            selectedKeys.add(theText + 'n');
+          });
+          if (!switchIsOn) sendHttpPostRequest(theText + 'n1');
+        },
+        onTapUp: (_) {
+          debugPrint('up');
+          setState(() {
+            selectedKeys.remove(theText + 'n');
+          });
+          if (!switchIsOn) {
+            sendHttpPostRequest(theText + 'n0');
+          }
+        },
+        onTapCancel: () {
+          debugPrint('cancel');
+          setState(() {
+            selectedKeys.remove(theText + 'n');
+          });
+          if (!switchIsOn) {
+            sendHttpPostRequest(theText + 'n0');
+          }
+        },
+        child: Stack(overflow: Overflow.visible, children: <Widget>[
+          Padding(
+              padding: const EdgeInsets.only(bottom: 0.5, top: 0.5),
+              child: Container(
+                //color: Colors.white,
+                decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius:
+                            selectedKeys.contains(theText + 'n') ? 7 : 5,
+                        blurRadius: 7,
+                        offset: Offset(0, 3), // changes position of shadow
+                      ),
+                    ],
+                    color: selectedKey == theText + 'n' && switchIsOn
+                        ? Colors.orange
+                        : Colors.white,
+                    border: Border.all(
+                        color: Colors.black,
+                        width: selectedKeys.contains(theText + 'n') ? 2 : 1),
+                    borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(7),
+                        bottomRight: Radius.circular(7))),
+                width: mediaQuery.size.width * 0.1, // 200.0,
+                height: totalAvailableHeight * 0.65,
+              )),
+          Positioned(
+              bottom: 5,
+              //top: 2.0,
+              left: mediaQuery.size.width * 0.038,
+              child: Container(
+                  //alignment: Alignment.center,
+                  //width: mediaQuery.size.width * 0.05,
+                  //height: totalAvailableHeight * 0.5,
+                  child: Text(
+                theText,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              )))
+        ]),
+      );
     }
 
     if (!PianoApp.stopwatch.isRunning) {
@@ -738,20 +816,24 @@ class PianoPageState extends State<PianoPage> {
           IconButton(
             icon: Icon(Icons.arrow_back),
             onPressed: () {
-              if (octaveOrder > 1)
+              if (octaveOrder > 1) {
+                sendHttpPostRequestBackOctave();
                 setState(() {
                   octaveOrder--;
                 });
+              }
             },
           ),
           selectOctave(),
           IconButton(
               icon: Icon(Icons.arrow_forward),
               onPressed: () {
-                if (octaveOrder < 5)
+                if (octaveOrder < 5) {
+                  sendHttpPostRequestNextOctave();
                   setState(() {
                     octaveOrder++;
                   });
+                }
               }),
         ],
       ));
