@@ -21,20 +21,27 @@ class _MenuPageState extends State<MenuPage> {
   _MenuPageState(this.userId, this.saveTime);
 
   bool connected = false;
+  Timer timer;
 
-  void askForConnection(){
+  void askForConnection() {
     //debugPrint(PianoApp.connected.toString());
     if (PianoApp.connected != connected)
       setState(() {
         connected = PianoApp.connected;
       });
   }
-  
+
   @override
   initState() {
-    const oneSec = const Duration(milliseconds: 500);
-    new Timer.periodic(oneSec, (Timer t) => askForConnection());
+    const oneSec = const Duration(milliseconds: 3000);
+    timer = new Timer.periodic(oneSec, (Timer t) => askForConnection());
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
   }
 
   @override
@@ -46,7 +53,10 @@ class _MenuPageState extends State<MenuPage> {
         child: Scaffold(
           appBar: AppBar(
             title: Text('Pianist Bot', style: TextStyle(color: Colors.white)),
-            leading: Icon(Icons.circle,color: PianoApp.connected? Colors.green: Colors.grey,),
+            leading: Icon(
+              Icons.circle,
+              color: PianoApp.connected ? Colors.green : Colors.grey,
+            ),
           ),
           body: menuScaffoldBody(),
         ));

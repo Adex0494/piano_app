@@ -17,7 +17,9 @@ void main() {
 class PianoApp extends StatelessWidget {
   static Stopwatch stopwatch = Stopwatch();
   static bool connected = false;
-  static String urlBase = 'http://192.168.0.5:5000';
+  //'http://10.0.0.11:5000'
+  //'http://192.168.0.5:5000'
+  static String urlBase = 'http://10.0.0.11:5000';
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -79,6 +81,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     //debugPrint(PianoApp.connected.toString());
     //const url = 'https://pianoapp-f3679.firebaseio.com/keys.json';
     String url = PianoApp.urlBase + '/ping';
+    PianoApp.connected =false;
     http.post(url).then((response) {
       PianoApp.connected = true;
     }).catchError((handleError){PianoApp.connected =false;});
@@ -173,7 +176,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
       scaffoldBody = Container(
           decoration: BoxDecoration(
               image: DecorationImage(
-                  image: AssetImage('images/Fondo Piano blur.jpeg'),
+                  image: AssetImage('images/pianoWelcome.jpg'),
                   fit: BoxFit.cover)),
           child: Center(
               child: Column(
@@ -184,7 +187,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
               //     height: 200,
               //     child: Image.asset('images/PianistBot-1.png')),
               Text(
-                'PIANIST BOT',
+                '',
                 style: TextStyle(
                     color: Colors.white,
                     fontSize: 36.0,

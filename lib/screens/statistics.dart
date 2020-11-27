@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -24,6 +26,32 @@ class StatisticsPage extends StatefulWidget {
 class _StatisticsPageState extends State<StatisticsPage> {
   final int userId;
   final Function saveTime;
+  Timer timer;
+
+  bool connected = false;
+
+  void askForConnection() {
+    //debugPrint(PianoApp.connected.toString());
+    if (PianoApp.connected != connected)
+      setState(() {
+        connected = PianoApp.connected;
+      });
+  }
+
+  @override
+  initState() {
+    todayUse = Use(userId, 0, DateTime.now().toString());
+    getUse(selectedDate);
+    const oneSec = const Duration(milliseconds: 3000);
+    timer = new Timer.periodic(oneSec, (Timer t) => askForConnection());
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
+  }
 
   _StatisticsPageState(this.userId, this.saveTime);
   //Function saveTime = widget.saveTime;
@@ -42,13 +70,6 @@ class _StatisticsPageState extends State<StatisticsPage> {
   String monthOrMonthes = '';
   String weekToShow = 'Esta semana';
   int weekCount = 0;
-  @override
-  initState() {
-    debugPrint('$userId');
-    todayUse = Use(userId, 0, DateTime.now().toString());
-    getUse(selectedDate);
-    super.initState();
-  }
 
   void getTodayUse() async {
     Use auxTodayUse = await databaseHelper.getUseFromUserAndDate(
@@ -216,7 +237,12 @@ class _StatisticsPageState extends State<StatisticsPage> {
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     final PreferredSizeWidget appBar = AppBar(
-        title: Text('Estadística', style: TextStyle(color: Colors.white)));
+      title: Text('Estadística', style: TextStyle(color: Colors.white)),
+      leading: Icon(
+        Icons.circle,
+        color: PianoApp.connected ? Colors.green : Colors.grey,
+      ),
+    );
     double totalAvailableHeight = mediaQuery.size.height -
         appBar.preferredSize.height -
         mediaQuery.padding.top;

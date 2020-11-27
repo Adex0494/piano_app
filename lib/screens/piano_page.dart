@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import '../main.dart';
@@ -29,6 +31,31 @@ class PianoPageState extends State<PianoPage> {
   OverlayEntry overlayEntry;
   bool overlayEntryIsOn = false;
   DatabaseHelper databaseHelper = DatabaseHelper();
+  Timer timer;
+
+  bool connected = false;
+
+  void askForConnection() {
+    //debugPrint(PianoApp.connected.toString());
+    if (PianoApp.connected != connected)
+      setState(() {
+        connected = PianoApp.connected;
+      });
+  }
+
+  @override
+  initState() {
+    const oneSec = const Duration(milliseconds: 3000);
+    timer= new Timer.periodic(oneSec, (Timer t) => askForConnection());
+    sendHttpPostRequestLiveMode();
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.landscapeLeft,
+    ]);
+    super.initState();
+  }
+
+
 
   void sendHttpPostRequest(String keyName) {
     //const url = 'https://pianoapp-f3679.firebaseio.com/keys.json';
@@ -71,16 +98,6 @@ class PianoPageState extends State<PianoPage> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    sendHttpPostRequestLiveMode();
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeRight,
-      DeviceOrientation.landscapeLeft,
-    ]);
-  }
-
-  @override
   dispose() {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeRight,
@@ -88,6 +105,7 @@ class PianoPageState extends State<PianoPage> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+    timer.cancel();
     super.dispose();
   }
 
@@ -105,6 +123,10 @@ class PianoPageState extends State<PianoPage> {
     final mediaQuery = MediaQuery.of(context);
     final PreferredSizeWidget appBar = AppBar(
       title: Text('Piano', style: TextStyle(color: Colors.white)),
+      leading: Icon(
+        Icons.circle,
+        color: PianoApp.connected ? Colors.green : Colors.grey,
+      ),
       actions: [
         Center(
             child: Text(
@@ -413,7 +435,11 @@ class PianoPageState extends State<PianoPage> {
                     width: mediaQuery.size.width / 5.5,
                     child: RaisedButton(
                       onPressed: () {
-                        showOverlay(context);
+                        if (record != '')
+                          showOverlay(context);
+                        else
+                          _showAlertDialog(
+                              'Error', 'No se ha guardado ninguna nota');
                       },
                       color: Colors.white,
                       elevation: 7,
