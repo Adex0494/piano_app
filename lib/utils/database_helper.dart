@@ -11,6 +11,7 @@ import 'package:path_provider/path_provider.dart';
 class DatabaseHelper {
   static DatabaseHelper _databaseHelper;
   static Database _database;
+  bool firstTimeDb = false;
 
   String colId = 'id';
 
@@ -44,6 +45,10 @@ class DatabaseHelper {
     if (_database == null) {
       debugPrint('Initializing database');
       _database = await initializeDatabase();
+      if(firstTimeDb){
+        firstTimeDb = false;
+        await insertDefaultSongs();
+      }
     }
     //debugPrint('returning database');
     return _database;
@@ -71,8 +76,17 @@ class DatabaseHelper {
         'CREATE TABLE $songTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colName TEXT NOT NULL,'
         '$colCodification TEXT NOT NULL)');
     debugPrint('Database Created');
+    firstTimeDb = true;
   }
 
+  Future<void> insertDefaultSongs()async{
+     List<Song> songsByDefect = [
+      Song('La Estrellita', 'La Estrellita'),
+      Song('Feliz Navidad', 'Feliz Navidad')
+    ];
+    for (int i = 0; i < songsByDefect.length; i++)
+      await insertSong(songsByDefect[i]);
+  }
     //-------------Insert Song----------------
   Future<int> insertSong(Song song) async {
     Database db = await this.database;
@@ -254,6 +268,15 @@ class DatabaseHelper {
     Database db = await this.database;
     int result = await db.update(useTable, use.toMap(),
         where: '$colId = ?', whereArgs: [use.id]);
+    return result;
+  }
+
+  //--------------------Delete song
+    //Delete Trainer
+  Future<int> deleteSong(int id) async {
+    Database db = await this.database;
+    int result =
+        await db.rawDelete('DELETE FROM $songTable WHERE $colId = $id');
     return result;
   }
 }

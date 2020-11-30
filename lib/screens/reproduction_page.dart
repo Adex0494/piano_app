@@ -17,8 +17,7 @@ class ReproductionPage extends StatefulWidget {
 }
 
 class ReproductionPageState extends State<ReproductionPage> {
-  List<String> songs = List<String>();
-  List<Song> theSongs;
+  List<Song> theSongs = List<Song>();
   DatabaseHelper databaseHelper = DatabaseHelper();
   Timer timer;
 
@@ -40,7 +39,7 @@ class ReproductionPageState extends State<ReproductionPage> {
     super.initState();
   }
 
-    @override
+  @override
   void dispose() {
     timer.cancel();
     super.dispose();
@@ -52,25 +51,11 @@ class ReproductionPageState extends State<ReproductionPage> {
     Navigator.pop(context);
   }
 
-
   loadSongs() async {
-    List<Song> songsByDefect = [
-      Song('La Estrellita', 'La Estrellita'),
-      Song('Feliz Navidad', 'Feliz Navidad')
-    ];
-    List<String> auxSongs = List<String>();
+    List<Song> auxSongs = await databaseHelper.getSongList();
 
-    for (int i = 0; i < songsByDefect.length; i++)
-      auxSongs.add(songsByDefect[i].name);
-
-    theSongs = songsByDefect;
-    List<Song> auxTheSongs = await databaseHelper.getSongList();
-    for (int i = 0; i < auxTheSongs.length; i++) {
-      auxSongs.add(auxTheSongs[i].name);
-      theSongs.add(auxTheSongs[i]);
-    }
     setState(() {
-      this.songs = auxSongs;
+      this.theSongs = auxSongs;
     });
   }
 
@@ -113,7 +98,7 @@ class ReproductionPageState extends State<ReproductionPage> {
   Widget scaffoldBody() {
     return ListView.builder(
         //shrinkWrap: true,
-        itemCount: songs.length,
+        itemCount: theSongs.length,
         itemBuilder: (BuildContext context, int position) {
           return Card(
             color: Colors.white,
@@ -127,7 +112,7 @@ class ReproductionPageState extends State<ReproductionPage> {
                 child: Icon(Icons.play_arrow),
               ),
               title: Text(
-                songs[position],
+                theSongs[position].name,
                 //style: subtitleStyle,
               ),
               onTap: () {
@@ -136,9 +121,23 @@ class ReproductionPageState extends State<ReproductionPage> {
                 //When suscriber is tapped...
                 //navigateToSubscriberPage(subscriberList[position]);
               },
+              trailing: IconButton(
+                tooltip: 'Eliminar canción',
+                //color: Colors.black,
+                icon: Icon(Icons.delete, color: Colors.black,),
+                onPressed:(){deleteSong(theSongs[position].id);},
+              ),
             ),
           );
         });
+  }
+
+  void deleteSong(int id)async{
+    await databaseHelper.deleteSong(id);
+    List<Song> auxSongs = await databaseHelper.getSongList();
+    setState(() {
+      this.theSongs = auxSongs;
+    });
   }
 
   void navigateToPlayPage(String theSongName) {

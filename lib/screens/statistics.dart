@@ -40,6 +40,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
 
   @override
   initState() {
+    _firstSelectedDate = DateTime.now();
     todayUse = Use(userId, 0, DateTime.now().toString());
     getUse(selectedDate);
     const oneSec = const Duration(milliseconds: 3000);
@@ -55,7 +56,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
 
   _StatisticsPageState(this.userId, this.saveTime);
   //Function saveTime = widget.saveTime;
-  String mode = 'Por periodo';
+  String mode = 'Por semana';
   String period = 'Semanal';
   DateTime _firstSelectedDate;
   DateTime _lastSelectedDate;
@@ -70,6 +71,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
   String monthOrMonthes = '';
   String weekToShow = 'Esta semana';
   int weekCount = 0;
+  int daySelectedMinutes = 0;
 
   void getTodayUse() async {
     Use auxTodayUse = await databaseHelper.getUseFromUserAndDate(
@@ -155,6 +157,27 @@ class _StatisticsPageState extends State<StatisticsPage> {
         return 6;
       default:
         return -1;
+    }
+  }
+
+    String translateDay(String day) {
+    switch (day) {
+      case 'Sunday':
+        return 'Domingo';
+      case 'Monday':
+        return 'Lunes';
+      case 'Tuesday':
+        return 'Martes';
+      case 'Wednesday':
+        return 'Miércoles';
+      case 'Thursday':
+        return 'Jueves';
+      case 'Friday':
+        return 'Viernes';
+      case 'Saturday':
+        return 'Sábado';
+      default:
+        return 'Irreconocido';
     }
   }
 
@@ -298,29 +321,52 @@ class _StatisticsPageState extends State<StatisticsPage> {
               initialDate: DateTime.now(),
               firstDate: DateTime(2020),
               lastDate: DateTime.now())
-          .then((pickedDate) {
+          .then((pickedDate) async {
         if (pickedDate == null) {
           return;
         }
-        setState(() {
-          if (theRange == Range.FirstDay)
+        
+          if (theRange == Range.FirstDay) {
             _firstSelectedDate = pickedDate;
-          else
-            _lastSelectedDate = pickedDate;
+            Use dayUse = await databaseHelper.getUseFromUserAndDate(
+                userId, getDateStringFromDateTime(_firstSelectedDate));
+            if (dayUse != null)
+            {
+              setState(() {
+                daySelectedMinutes = dayUse.minutes;
+              });
+              
+            }
+            else
+              setState(() {
+                daySelectedMinutes = 0;
+              });
+          } else
+          setState(() {
+             _lastSelectedDate = pickedDate;
+          });
         });
-      });
+      
     }
 
     Widget periodOrRangeWidget() {
-      return mode == 'Por periodo'
-          ? Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [periodRadio('Semanal'), periodRadio('Mensual')])
+      if (mode == 'Por día')
+          monthOrMonthes ='';
+
+      else{
+          showMonthOrMonthes();
+      }
+      return mode == 'Por semana'
+          ?
+          //  Row(
+          //     mainAxisAlignment: MainAxisAlignment.center,
+          //     children: [periodRadio('Semanal'), periodRadio('Mensual')])
+          Container()
           : Container(
               child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('Desde:'),
+                Text('Día:'),
                 FlatButton(
                     padding: EdgeInsets.all(0),
                     onPressed: () {
@@ -329,17 +375,124 @@ class _StatisticsPageState extends State<StatisticsPage> {
                     child: _firstSelectedDate == null
                         ? Text(' Seleccionar fecha  ')
                         : Text(DateFormat.yMd().format(_firstSelectedDate))),
-                Text('Hasta:'),
-                FlatButton(
-                    padding: EdgeInsets.all(0),
-                    onPressed: () {
-                      _presentDatePicker(Range.LastDay);
-                    },
-                    child: _lastSelectedDate == null
-                        ? Text(' Seleccionar fecha')
-                        : Text(DateFormat.yMd().format(_lastSelectedDate)))
+                // Text('Hasta:'),
+                // FlatButton(
+                //     padding: EdgeInsets.all(0),
+                //     onPressed: () {
+                //       _presentDatePicker(Range.LastDay);
+                //     },
+                //     child: _lastSelectedDate == null
+                //         ? Text(' Seleccionar fecha')
+                //         : Text(DateFormat.yMd().format(_lastSelectedDate)))
               ],
             ));
+    }
+
+    Widget weekBarsGraph() {
+      return Container(
+          padding: EdgeInsets.all(0),
+          margin: EdgeInsets.all(0),
+          child: Column(
+            children: [
+              Container(
+                  child: Padding(
+                padding: const EdgeInsets.all(7.0),
+                child: Text(
+                  weekToShow,
+                  style: Theme.of(context).textTheme.headline3,
+                ),
+              )),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                      alignment: Alignment.centerLeft,
+                      width: mediaQuery.size.width * 0.10,
+                      child: FlatButton(
+                        padding: EdgeInsets.all(0),
+                        child: IconButton(icon: Icon(Icons.arrow_back)),
+                        onPressed: () {
+                          setState(() {
+                            weekCount--;
+                            selectedDate = selectedDate.add(Duration(days: -7));
+                            getUse(selectedDate);
+                          });
+                        },
+                      )),
+                  Container(
+                      height: 250,
+                      width: mediaQuery.size.width * 0.80,
+                      child: Card(
+                        elevation: 5,
+                        child: Container(
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                DayBar(
+                                    getHeightFactor(minutesUsed[0]),
+                                    'Do',
+                                    range[0].day.toString(),
+                                    timeInMinutesOrHours(minutesUsed[0])),
+                                DayBar(
+                                    getHeightFactor(minutesUsed[1]),
+                                    'Lu',
+                                    range[0].add(Duration(days: 1)).day.toString(),
+                                    timeInMinutesOrHours(minutesUsed[1])),
+                                DayBar(
+                                    getHeightFactor(minutesUsed[2]),
+                                    'Ma',
+                                    range[0].add(Duration(days: 2)).day.toString(),
+                                    timeInMinutesOrHours(minutesUsed[2])),
+                                DayBar(
+                                    getHeightFactor(minutesUsed[3]),
+                                    'Mi',
+                                    range[0].add(Duration(days: 3)).day.toString(),
+                                    timeInMinutesOrHours(minutesUsed[3])),
+                                DayBar(
+                                    getHeightFactor(minutesUsed[4]),
+                                    'Ju',
+                                    range[0].add(Duration(days: 4)).day.toString(),
+                                    timeInMinutesOrHours(minutesUsed[4])),
+                                DayBar(
+                                    getHeightFactor(minutesUsed[5]),
+                                    'Vi',
+                                    range[0].add(Duration(days: 5)).day.toString(),
+                                    timeInMinutesOrHours(minutesUsed[5])),
+                                DayBar(
+                                    getHeightFactor(minutesUsed[6]),
+                                    'Sa',
+                                    range[0].add(Duration(days: 6)).day.toString(),
+                                    timeInMinutesOrHours(minutesUsed[6])),
+                              ]),
+                        ),
+                      )),
+                  Container(
+                      alignment: Alignment.centerRight,
+                      width: mediaQuery.size.width * 0.10,
+                      child: FlatButton(
+                        padding: EdgeInsets.all(0),
+                        child: IconButton(icon: Icon(Icons.arrow_forward)),
+                        onPressed: () {
+                          if (weekCount < 0) {
+                            weekCount++;
+                            selectedDate = selectedDate.add(Duration(days: 7));
+                            getUse(selectedDate);
+                          }
+                        },
+                      )),
+                ],
+              ),
+              Container(
+                  child: Padding(
+                padding: const EdgeInsets.only(top: 7.0),
+                child: Text(
+                  'Total: ${timeInMinutesOrHours(totalUseInMinutes)}',
+                  style: Theme.of(context).textTheme.headline3,
+                ),
+              ))
+            ],
+          ));
     }
 
     return Scaffold(
@@ -358,33 +511,27 @@ class _StatisticsPageState extends State<StatisticsPage> {
                 ),
                 //color: Colors.green,
                 height: totalAvailableHeight * 0.2,
-                // child: SingleChildScrollView(
-                //   child: Column(
-                //     //----------------------top column--------------
-                //     children: [
-                //       Container(
-                //         padding: EdgeInsets.all(8),
-                //         child: Text(
-                //           'FILTROS',
-                //           style: Theme.of(context).textTheme.headline3,
-                //           textAlign: TextAlign.center,
-                //         ),
-                //       ),
-                //       Row(
-                //         mainAxisAlignment: MainAxisAlignment.spaceAround,
-                //         children: [
-                //           periodOrRangeRadio('Por periodo'),
-                //           periodOrRangeRadio('Por rango')
-                //         ],
-                //       ),
-                //       periodOrRangeWidget(),
-                //     ],
-                //   ),
-                // ),
-                child: Center(
-                  child: Text(
-                    monthOrMonthes,
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                child: SingleChildScrollView(
+                  child: Column(
+                    //     //----------------------top column--------------
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(8),
+                        child: Text(
+                          'FILTROS',
+                          style: Theme.of(context).textTheme.headline3,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          periodOrRangeRadio('Por semana'),
+                          periodOrRangeRadio('Por día')
+                        ],
+                      ),
+                      periodOrRangeWidget(),
+                    ],
                   ),
                 ),
               ),
@@ -397,129 +544,21 @@ class _StatisticsPageState extends State<StatisticsPage> {
                     padding: const EdgeInsets.only(top: 10),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                            child: Padding(
-                          padding: const EdgeInsets.all(7.0),
+                      children: <Widget>[
+                        Center(
                           child: Text(
-                            weekToShow,
-                            style: Theme.of(context).textTheme.headline3,
+                            monthOrMonthes,
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
                           ),
-                        )),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                                alignment: Alignment.centerLeft,
-                                width: mediaQuery.size.width * 0.10,
-                                child: FlatButton(
-                                  padding: EdgeInsets.all(0),
-                                  child:
-                                      IconButton(icon: Icon(Icons.arrow_back)),
-                                  onPressed: () {
-                                    setState(() {
-                                      weekCount--;
-                                      selectedDate =
-                                          selectedDate.add(Duration(days: -7));
-                                      getUse(selectedDate);
-                                    });
-                                  },
-                                )),
-                            Container(
-                                height: 250,
-                                width: mediaQuery.size.width * 0.80,
-                                child: Card(
-                                  elevation: 5,
-                                  child: Container(
-                                    child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceAround,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: <Widget>[
-                                          DayBar(
-                                              getHeightFactor(minutesUsed[0]),
-                                              'Do',
-                                              range[0].day,
-                                              timeInMinutesOrHours(
-                                                  minutesUsed[0])),
-                                          DayBar(
-                                              getHeightFactor(minutesUsed[1]),
-                                              'Lu',
-                                              range[0]
-                                                  .add(Duration(days: 1))
-                                                  .day,
-                                              timeInMinutesOrHours(
-                                                  minutesUsed[1])),
-                                          DayBar(
-                                              getHeightFactor(minutesUsed[2]),
-                                              'Ma',
-                                              range[0]
-                                                  .add(Duration(days: 2))
-                                                  .day,
-                                              timeInMinutesOrHours(
-                                                  minutesUsed[2])),
-                                          DayBar(
-                                              getHeightFactor(minutesUsed[3]),
-                                              'Mi',
-                                              range[0]
-                                                  .add(Duration(days: 3))
-                                                  .day,
-                                              timeInMinutesOrHours(
-                                                  minutesUsed[3])),
-                                          DayBar(
-                                              getHeightFactor(minutesUsed[4]),
-                                              'Ju',
-                                              range[0]
-                                                  .add(Duration(days: 4))
-                                                  .day,
-                                              timeInMinutesOrHours(
-                                                  minutesUsed[4])),
-                                          DayBar(
-                                              getHeightFactor(minutesUsed[5]),
-                                              'Vi',
-                                              range[0]
-                                                  .add(Duration(days: 5))
-                                                  .day,
-                                              timeInMinutesOrHours(
-                                                  minutesUsed[5])),
-                                          DayBar(
-                                              getHeightFactor(minutesUsed[6]),
-                                              'Sa',
-                                              range[0]
-                                                  .add(Duration(days: 6))
-                                                  .day,
-                                              timeInMinutesOrHours(
-                                                  minutesUsed[6])),
-                                        ]),
-                                  ),
-                                )),
-                            Container(
-                                alignment: Alignment.centerRight,
-                                width: mediaQuery.size.width * 0.10,
-                                child: FlatButton(
-                                  padding: EdgeInsets.all(0),
-                                  child: IconButton(
-                                      icon: Icon(Icons.arrow_forward)),
-                                  onPressed: () {
-                                    if (weekCount < 0) {
-                                      weekCount++;
-                                      selectedDate =
-                                          selectedDate.add(Duration(days: 7));
-                                      getUse(selectedDate);
-                                    }
-                                  },
-                                )),
-                          ],
                         ),
-                        Container(
-                            child: Padding(
-                          padding: const EdgeInsets.only(top: 7.0),
-                          child: Text(
-                            'Total: ${timeInMinutesOrHours(totalUseInMinutes)}',
-                            style: Theme.of(context).textTheme.headline3,
-                          ),
-                        ))
+                        mode == 'Por semana'
+                            ? weekBarsGraph()
+                            : DayBar(
+                                daySelectedMinutes==0?0:1,
+                                translateDay(DateFormat('EEEE').format(_firstSelectedDate)),
+                                _firstSelectedDate.day.toString() +' '+getMonthName(_firstSelectedDate.month),
+                                timeInMinutesOrHours(daySelectedMinutes))
                       ],
                     ),
                   ),

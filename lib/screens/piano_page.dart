@@ -156,7 +156,12 @@ class PianoPageState extends State<PianoPage> {
         mediaQuery.padding.top;
 
     String secondsToMiliseconds(double seconds) {
-      return (seconds * 1000).toInt().toString();
+      String theString = (seconds * 1000).toInt().toString();
+      int length = 4-theString.length;
+      for(int i=0;i<(length);i++)
+        theString = '0' + theString;
+
+      return theString;
     }
 
     Widget fingerRadio(String text) {
@@ -403,7 +408,8 @@ class PianoPageState extends State<PianoPage> {
                         if (!(timePressed.text == '' ||
                             delay.text == '' ||
                             selectedKey == '')) {
-                          debugPrint('klk');
+                              debugPrint(secondsToMiliseconds(
+                                  double.parse(timePressed.text)));
                           record = record +
                               selectedKey +
                               finger +
