@@ -38,9 +38,23 @@ class _StatisticsPageState extends State<StatisticsPage> {
       });
   }
 
+  void getDaySelectedMinutes(DateTime day) async {
+    Use dayUse = await databaseHelper.getUseFromUserAndDate(
+        userId, getDateStringFromDateTime(day));
+    if (dayUse != null) {
+      setState(() {
+        daySelectedMinutes = dayUse.minutes;
+      });
+    } else
+      setState(() {
+        daySelectedMinutes = 0;
+      });
+  }
+
   @override
   initState() {
     _firstSelectedDate = DateTime.now();
+    // getDaySelectedMinutes(_firstSelectedDate);
     todayUse = Use(userId, 0, DateTime.now().toString());
     getUse(selectedDate);
     const oneSec = const Duration(milliseconds: 3000);
@@ -58,8 +72,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
   //Function saveTime = widget.saveTime;
   String mode = 'Por semana';
   String period = 'Semanal';
-  DateTime _firstSelectedDate;
-  DateTime _lastSelectedDate;
+  DateTime _firstSelectedDate;//By default it is today
+  //DateTime _lastSelectedDate;
   DatabaseHelper databaseHelper = DatabaseHelper();
   List<Use> useList = List<Use>();
   int totalUseInMinutes = 0;
@@ -78,6 +92,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
         userId, getDateStringFromDateTime(DateTime.now()));
     if (auxTodayUse != null) {
       setState(() {
+        //_firstSelectedDate = DateTime.now();
+        daySelectedMinutes = auxTodayUse.minutes;
         this.todayUse = auxTodayUse;
       });
     }
@@ -160,7 +176,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
     }
   }
 
-    String translateDay(String day) {
+  String translateDay(String day) {
     switch (day) {
       case 'Sunday':
         return 'Domingo';
@@ -228,6 +244,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
     int auxTotalUseInMinutes = 0;
 
     //PianoApp.stopwatch.stop();
+    debugPrint(PianoApp.stopwatch.elapsedMilliseconds.toString());
     if (PianoApp.stopwatch.elapsedMilliseconds > 30000) await saveTime(userId);
 
     if (!gotTodayUse) {
@@ -325,36 +342,31 @@ class _StatisticsPageState extends State<StatisticsPage> {
         if (pickedDate == null) {
           return;
         }
-        
-          if (theRange == Range.FirstDay) {
-            _firstSelectedDate = pickedDate;
-            Use dayUse = await databaseHelper.getUseFromUserAndDate(
-                userId, getDateStringFromDateTime(_firstSelectedDate));
-            if (dayUse != null)
-            {
-              setState(() {
-                daySelectedMinutes = dayUse.minutes;
-              });
-              
-            }
-            else
-              setState(() {
-                daySelectedMinutes = 0;
-              });
+
+        if (theRange == Range.FirstDay) {
+          _firstSelectedDate = pickedDate;
+          Use dayUse = await databaseHelper.getUseFromUserAndDate(
+              userId, getDateStringFromDateTime(_firstSelectedDate));
+          if (dayUse != null) {
+            setState(() {
+              daySelectedMinutes = dayUse.minutes;
+            });
           } else
+            setState(() {
+              daySelectedMinutes = 0;
+            });
+        } else
           setState(() {
-             _lastSelectedDate = pickedDate;
+            //_lastSelectedDate = pickedDate;
           });
-        });
-      
+      });
     }
 
     Widget periodOrRangeWidget() {
       if (mode == 'Por día')
-          monthOrMonthes ='';
-
-      else{
-          showMonthOrMonthes();
+        monthOrMonthes = '';
+      else {
+        showMonthOrMonthes();
       }
       return mode == 'Por semana'
           ?
@@ -437,32 +449,50 @@ class _StatisticsPageState extends State<StatisticsPage> {
                                 DayBar(
                                     getHeightFactor(minutesUsed[1]),
                                     'Lu',
-                                    range[0].add(Duration(days: 1)).day.toString(),
+                                    range[0]
+                                        .add(Duration(days: 1))
+                                        .day
+                                        .toString(),
                                     timeInMinutesOrHours(minutesUsed[1])),
                                 DayBar(
                                     getHeightFactor(minutesUsed[2]),
                                     'Ma',
-                                    range[0].add(Duration(days: 2)).day.toString(),
+                                    range[0]
+                                        .add(Duration(days: 2))
+                                        .day
+                                        .toString(),
                                     timeInMinutesOrHours(minutesUsed[2])),
                                 DayBar(
                                     getHeightFactor(minutesUsed[3]),
                                     'Mi',
-                                    range[0].add(Duration(days: 3)).day.toString(),
+                                    range[0]
+                                        .add(Duration(days: 3))
+                                        .day
+                                        .toString(),
                                     timeInMinutesOrHours(minutesUsed[3])),
                                 DayBar(
                                     getHeightFactor(minutesUsed[4]),
                                     'Ju',
-                                    range[0].add(Duration(days: 4)).day.toString(),
+                                    range[0]
+                                        .add(Duration(days: 4))
+                                        .day
+                                        .toString(),
                                     timeInMinutesOrHours(minutesUsed[4])),
                                 DayBar(
                                     getHeightFactor(minutesUsed[5]),
                                     'Vi',
-                                    range[0].add(Duration(days: 5)).day.toString(),
+                                    range[0]
+                                        .add(Duration(days: 5))
+                                        .day
+                                        .toString(),
                                     timeInMinutesOrHours(minutesUsed[5])),
                                 DayBar(
                                     getHeightFactor(minutesUsed[6]),
                                     'Sa',
-                                    range[0].add(Duration(days: 6)).day.toString(),
+                                    range[0]
+                                        .add(Duration(days: 6))
+                                        .day
+                                        .toString(),
                                     timeInMinutesOrHours(minutesUsed[6])),
                               ]),
                         ),
@@ -495,7 +525,11 @@ class _StatisticsPageState extends State<StatisticsPage> {
           ));
     }
 
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: (){
+        moveToLastScreen();
+      },
+      child: Scaffold(
         appBar: appBar,
         //backgroundColor: Colors.black,
         body: Column(
@@ -555,9 +589,12 @@ class _StatisticsPageState extends State<StatisticsPage> {
                         mode == 'Por semana'
                             ? weekBarsGraph()
                             : DayBar(
-                                daySelectedMinutes==0?0:1,
-                                translateDay(DateFormat('EEEE').format(_firstSelectedDate)),
-                                _firstSelectedDate.day.toString() +' '+getMonthName(_firstSelectedDate.month),
+                                daySelectedMinutes == 0 ? 0 : 1,
+                                translateDay(DateFormat('EEEE')
+                                    .format(_firstSelectedDate)),
+                                _firstSelectedDate.day.toString() +
+                                    ' ' +
+                                    getMonthName(_firstSelectedDate.month),
                                 timeInMinutesOrHours(daySelectedMinutes))
                       ],
                     ),
@@ -573,7 +610,13 @@ class _StatisticsPageState extends State<StatisticsPage> {
                       child: Text(
                           'Hoy: ' + timeInMinutesOrHours(todayUse.minutes),
                           style: Theme.of(context).textTheme.headline6)))
-            ]));
+            ])));
+  }
+
+  void moveToLastScreen() {
+    //PianoApp.stopwatch.stop();
+    debugPrint(PianoApp.stopwatch.elapsedMilliseconds.toString());
+    Navigator.pop(context);
   }
 }
 

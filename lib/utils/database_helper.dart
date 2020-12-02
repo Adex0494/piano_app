@@ -82,7 +82,8 @@ class DatabaseHelper {
   Future<void> insertDefaultSongs()async{
      List<Song> songsByDefect = [
       Song('La Estrellita', 'La Estrellita'),
-      Song('Feliz Navidad', 'Feliz Navidad')
+      Song('Feliz Navidad', 'Feliz Navidad'),
+      Song('Santa Claus Is Coming to Town', 'Santa Claus Is Coming to Town')
     ];
     for (int i = 0; i < songsByDefect.length; i++)
       await insertSong(songsByDefect[i]);
@@ -134,15 +135,12 @@ class DatabaseHelper {
 
   //------------------Get a user map
   Future<Map<String, dynamic>> getAUserMap(String username) async {
-    debugPrint('getting map');
     Database db = await this.database;
     List<Map<String, dynamic>> result = await db
         .rawQuery("SELECT * FROM $userTable WHERE $colUsername='$username'");
     if (result.length != 0) {
-      debugPrint('returning map');
       return result[0];
     } else {
-      debugPrint('Returning the null map');
       return null;
     }
   }
@@ -186,14 +184,11 @@ class DatabaseHelper {
 //-----------------Get a users object
 
   Future<User> getAUser(String username) async {
-    debugPrint('getting user');
     Map<String, dynamic> map = await getAUserMap(username);
     if (map != null) {
-      debugPrint('The user is not null');
       User object = User.toUser(map);
       return object;
     } else {
-      debugPrint('The user is null');
       return null;
     }
   }
@@ -209,7 +204,6 @@ class DatabaseHelper {
 //----------------Get use from a user with a specified date map List
   Future<Map<String, dynamic>> getUseFromUserAndDateMap(
       int thisUserId, String date) async {
-    debugPrint('get use from user and date map, user id = $thisUserId');
     Database db = await this.database;
     List<Map<String, dynamic>> result = await db.rawQuery(
         "SELECT * FROM $useTable WHERE $colUserId = $thisUserId AND $colDate LIKE '$date%' ORDER BY $colId ASC");

@@ -73,7 +73,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordControler = TextEditingController();
   DatabaseHelper databaseHelper = DatabaseHelper();
-  bool stopWatchWasRunning = true;
+  bool stopWatchWasRunning = false;
   int userId;
 
 

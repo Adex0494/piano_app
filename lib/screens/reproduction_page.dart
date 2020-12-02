@@ -121,7 +121,7 @@ class ReproductionPageState extends State<ReproductionPage> {
                 //When suscriber is tapped...
                 //navigateToSubscriberPage(subscriberList[position]);
               },
-              trailing: IconButton(
+              trailing: isDefaultSong(theSongs[position].name)? null: IconButton(
                 tooltip: 'Eliminar canción',
                 //color: Colors.black,
                 icon: Icon(Icons.delete, color: Colors.black,),
@@ -130,6 +130,12 @@ class ReproductionPageState extends State<ReproductionPage> {
             ),
           );
         });
+  }
+
+  bool isDefaultSong(String songName){
+    if(songName == 'La Estrellita' || songName =='Feliz Navidad' || songName == 'Santa Claus Is Coming to Town')
+      return true;
+    else return false;
   }
 
   void deleteSong(int id)async{
